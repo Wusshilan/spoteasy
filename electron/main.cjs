@@ -132,7 +132,9 @@ function mergeCookies(base, next) {
 
 function coverWithSize(url, size) {
   if (!url) return undefined;
-  return url.includes('?') ? `${url}&param=${size}y${size}` : `${url}?param=${size}y${size}`;
+  const value = `param=${size}y${size}`;
+  if (/[?&]param=/.test(url)) return url.replace(/([?&])param=[^&]*/, `$1${value}`);
+  return url.includes('?') ? `${url}&${value}` : `${url}?${value}`;
 }
 
 function mapNeteasePlaylist(raw) {

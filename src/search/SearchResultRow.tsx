@@ -1,6 +1,13 @@
 import { Icon } from '../components/Icons';
 import { Avatar, Cover } from '../components/CoverArt';
 
+function thumb(url: string | undefined, size = 160) {
+  if (!url) return undefined;
+  const value = `param=${size}y${size}`;
+  if (/[?&]param=/.test(url)) return url.replace(/([?&])param=[^&]*/, `$1${value}`);
+  return url.includes('?') ? `${url}&${value}` : `${url}?${value}`;
+}
+
 export type SearchRowKind = 'track' | 'album' | 'playlist' | 'artist' | 'podcast' | 'local' | 'mv';
 export type SearchRowAction = 'add' | 'liked' | 'follow' | 'following' | 'none';
 
@@ -45,9 +52,9 @@ export function SearchResultRow({
     >
       <div className="search-row-art">
         {kind === 'artist' ? (
-          <Avatar hue={hue} label={title} src={coverUrl} size={48} />
+          <Avatar hue={hue} label={title} src={thumb(coverUrl, 120)} size={48} />
         ) : (
-          <Cover hue={hue} variant={variant} label={title} src={coverUrl} className="search-row-cover" />
+          <Cover hue={hue} variant={variant} label={title} src={thumb(coverUrl, 160)} className="search-row-cover" />
         )}
       </div>
       <div className="search-row-copy">
