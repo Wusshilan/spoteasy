@@ -2,7 +2,7 @@
   "name": "spoteasy",
   "version": "0.1.32",
   "private": true,
-  "description": "Spoteasy — 用 Spotify 桌面端的细节做的纯音乐播放器（网易云内容层）",
+  "description": "Spoteasy",
   "author": "Spoteasy",
   "type": "module",
   "main": "electron/main.cjs",

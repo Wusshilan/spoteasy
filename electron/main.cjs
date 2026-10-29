@@ -986,7 +986,7 @@ function createMiniPlayer() {
     alwaysOnTop: true,
     skipTaskbar: true,
     backgroundColor: '#000000',
-    title: 'Spoteasy 迷你播放器',
+    title: 'Spoteasy',
     icon: path.join(ROOT, 'build', 'icon.png'),
     autoHideMenuBar: true,
     webPreferences: {

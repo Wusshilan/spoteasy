@@ -1,8 +1,16 @@
-# Spoteasy
+<p align="center">
+  <img src="docs/screenshots/readme-logo.webp" alt="Spoteasy" width="460" />
+</p>
 
-用 **Spotify 桌面端的细节** 做的纯音乐播放器：三栏布局、播放条、全屏播放、歌词、搜索、音乐库和设置页都按 Spotify 的交互重新实现，内容层接网易云音乐，本地音乐也能直接扫库播放。
+<p align="center">
+  <strong>Spotify 风格的桌面音乐播放器</strong><br />
+  三栏结构 · 全屏播放 · 歌词 · 搜索 · 播客 · 本地音乐 · 自动更新
+</p>
 
-![Spoteasy 首页](docs/screenshots/readme-home.png)
+<p align="center">
+  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.32"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
+  <a href="https://github.com/Wusshilan/spoteasy"><img alt="Source" src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
+</p>
 
 **当前版本：0.1.32** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
 
@@ -12,15 +20,41 @@
 
 ## 实机截图
 
-| 首页 | 搜索 |
-| --- | --- |
-| ![首页](docs/screenshots/readme-home.png) | ![搜索](docs/screenshots/readme-search.png) |
+<table>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/readme-playlist.webp" alt="播放列表" /></td>
+    <td width="50%"><img src="docs/screenshots/readme-artist.webp" alt="艺人页" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>播放列表 · 曲目 · 正在播放</sub></td>
+    <td align="center"><sub>艺人页 · 热门歌曲 · 关注状态</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/readme-library.webp" alt="音乐库" /></td>
+    <td width="50%"><img src="docs/screenshots/readme-whatsnew.webp" alt="新增内容" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>音乐库 · 艺人/专辑/歌单网格</sub></td>
+    <td align="center"><sub>新增内容 · 关注艺人的新发布</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/screenshots/readme-friends.webp" alt="收听动态" /></td>
+    <td width="50%"><img src="docs/screenshots/readme-fullplayer.webp" alt="全屏播放" /></td>
+  </tr>
+  <tr>
+    <td align="center"><sub>收听动态 · 好友正在收听</sub></td>
+    <td align="center"><sub>全屏播放 · 封面主色背景</sub></td>
+  </tr>
+</table>
 
-| 音乐库 | 设置 |
-| --- | --- |
-| ![音乐库](docs/screenshots/readme-library.png) | ![设置](docs/screenshots/readme-settings.png) |
+## 为什么是 Spoteasy
 
-![全屏播放](docs/screenshots/readme-player.png)
+- **像 Spotify 一样用**：三栏布局、顶栏、播放条、队列、右键菜单、设置页，而不是套一层网页
+- **网易云内容层**：搜索、歌单、专辑、艺人、MV、播客、每日推荐都能在站内打开
+- **本地和云端统一**：本地文件夹扫描和网易云歌曲共用一套播放器、队列和歌词界面
+- **全屏播放**：点击封面切换歌词，点击封面以外退出沉浸，封面主色背景
+- **真正的桌面应用**：Electron 原生窗口、系统媒体键、本地缓存、GitHub Releases 更新
+- **不藏假按钮**：没有接入的能力在设置页明确标记“未接入”，不做点击只弹 toast 的假功能
 
 ## 功能
 
