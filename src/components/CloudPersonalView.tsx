@@ -11,7 +11,7 @@ interface CloudPersonalViewProps {
 }
 
 export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
-  const { loggedIn, openLogin, dailyTracks, likedTracks, likedIds } = useNetease();
+  const { loggedIn, hasProfile, nickname, openLogin, dailyTracks, likedTracks, likedIds } = useNetease();
   const player = usePlayer();
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
@@ -22,7 +22,7 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
   useEffect(() => {
     let alive = true;
     setError(null);
-    if (!loggedIn) {
+    if (!loggedIn && !(kind === 'liked' && hasProfile)) {
       setTracks([]);
       setLoading(false);
       return;
@@ -42,9 +42,9 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
     return () => {
       alive = false;
     };
-  }, [dailyTracks, kind, likedTracks, loggedIn, likeCount]);
+  }, [dailyTracks, hasProfile, kind, likedTracks, loggedIn, likeCount]);
 
-  if (!loggedIn && (kind === 'daily' || localLikedTracks.length === 0)) {
+  if ((!loggedIn && !hasProfile) || (kind === 'daily' && !loggedIn)) {
     return (
       <div className="empty-state">
         <div className="empty-icon">CLOUD</div>
@@ -65,8 +65,8 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
     return (
       <div className="empty-state">
         <div className="empty-icon">…</div>
-        <h2>{kind === 'daily' ? '正在生成每日推荐' : '正在加载我喜欢的音乐'}</h2>
-        <p>正在加载你账号里的歌曲。</p>
+        <h2>{kind === 'daily' ? '正在生成每日推荐' : loggedIn ? '正在加载我喜欢的音乐' : '正在加载公开喜欢的音乐'}</h2>
+        <p>{loggedIn ? '正在加载你账号里的歌曲。' : '正在读取公开主页里的歌曲。'}</p>
       </div>
     );
   }
@@ -75,7 +75,7 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
     return (
       <div className="empty-state">
         <div className="empty-icon">CLOUD</div>
-        <h2>{kind === 'daily' ? '每日推荐暂时打不开' : '我喜欢的音乐暂时打不开'}</h2>
+        <h2>{kind === 'daily' ? '每日推荐暂时打不开' : loggedIn ? '我喜欢的音乐暂时打不开' : '公开喜欢的音乐暂时打不开'}</h2>
         <p>{error}</p>
         <button type="button" className="primary-btn" onClick={() => navigate({ name: 'home' })}>
           回到首页
@@ -105,12 +105,14 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
   const first = mergedTracks[0];
   const playlist: Playlist = {
     id: kind === 'daily' ? 'ne-daily' : 'ne-liked',
-    name: kind === 'daily' ? '每日推荐' : '我喜欢的音乐',
+    name: kind === 'daily' ? '每日推荐' : loggedIn ? '我喜欢的音乐' : '公开喜欢的音乐',
     desc:
       kind === 'daily'
         ? '根据你的音乐口味生成，每天 6:00 更新。'
-        : '你收藏的红心歌曲，本地喜欢与网易云红心合并。',
-    owner: kind === 'daily' ? '音乐库' : '我的音乐',
+        : loggedIn
+          ? '你收藏的红心歌曲，本地喜欢与网易云红心合并。'
+          : `从 ${nickname} 的公开主页读取的喜欢的音乐。`,
+    owner: kind === 'daily' ? '音乐库' : loggedIn ? '我的音乐' : nickname,
     hue: first?.hue ?? 158,
     variant: kind === 'daily' ? 2 : 5,
     kind: kind === 'daily' ? 'daily' : 'liked',
@@ -123,11 +125,11 @@ export function CloudPersonalView({ kind, navigate }: CloudPersonalViewProps) {
 
   return (
     <div className="liked-merged-page">
-      {!loggedIn && kind === 'liked' && (
+      {!loggedIn && hasProfile && kind === 'liked' && (
         <div className="liked-local-note">
-          <span>当前显示本地喜欢。登录后同时显示网易云红心歌曲。</span>
+          <span>当前显示公开主页数据，只读。登录后显示自己账号的红心歌曲。</span>
           <button type="button" onClick={openLogin}>
-            登录网易云
+            扫码登录
           </button>
         </div>
       )}

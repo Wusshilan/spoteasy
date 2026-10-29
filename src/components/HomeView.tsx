@@ -140,19 +140,19 @@ export function HomeView({ navigate }: HomeViewProps) {
 
   const quick = useMemo(() => {
     if (!netease.loggedIn) {
-      if (player.liked.size === 0) return [];
-      return [
-        {
-          id: '__liked',
-          name: '我喜欢的音乐',
-          desc: '',
-          owner: '',
-          hue: 158,
-          variant: 5,
-          tracks: [],
-          kind: 'liked' as const,
-        },
-      ];
+      const liked = {
+        id: '__liked',
+        name: netease.hasProfile && !netease.loggedIn ? '公开喜欢的音乐' : '我喜欢的音乐',
+        desc: '',
+        owner: '',
+        hue: 158,
+        variant: 5,
+        tracks: [],
+        coverUrl: undefined as string | undefined,
+        kind: 'liked' as const,
+      };
+      if (netease.hasProfile) return [liked, ...netease.myPlaylists].slice(0, 6);
+      return player.liked.size > 0 ? [liked] : [];
     }
     return [
       {
@@ -178,7 +178,7 @@ export function HomeView({ navigate }: HomeViewProps) {
       },
       ...netease.myPlaylists,
     ].slice(0, 6);
-  }, [dailyCover, dailyHue, netease.loggedIn, netease.myPlaylists, player.liked]);
+  }, [dailyCover, dailyHue, netease.hasProfile, netease.loggedIn, netease.myPlaylists, player.liked]);
 
   useEffect(() => {
     if (!netease.loggedIn || netease.myPodcasts.length === 0) {

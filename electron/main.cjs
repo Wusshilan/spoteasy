@@ -156,6 +156,7 @@ function mapNeteasePlaylist(raw) {
     playCount: Number(raw?.playCount || 0),
     trackCount: Number(raw?.trackCount || raw?.tracks?.length || 0),
     subscribed: Boolean(raw?.subscribed),
+    specialType: Number(raw?.specialType || 0),
     createdAt: Number(raw?.createTime || 0) || undefined,
   };
 }
@@ -1174,7 +1175,6 @@ app.whenReady().then(() => {
         keyword.trim(),
         Math.max(1, Number(limit) || 20),
         Math.max(0, Number(offset) || 0),
-        neteaseCookie,
       );
     } catch (err) {
       console.warn('[netease] search failed', err?.message || err);
@@ -1183,12 +1183,66 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('netease:lyric', async (_event, id) => {
     try {
-      return await netease.lyric(id, neteaseCookie);
+      return await netease.lyric(id);
     } catch (err) {
       return { lrc: '', translation: '', error: String(err?.message || err) };
     }
   });
   ipcMain.handle('netease:status', () => neteaseStatus());
+  ipcMain.handle('netease:search-users', async (_event, keyword, offset = 0, limit = 20) => {
+    const query = String(keyword || '').trim();
+    if (!query) return { users: [], hasMore: false };
+    try {
+      const result = await neteaseApi.search({
+        keywords: query,
+        type: 1002,
+        limit: Math.max(1, Math.min(50, Number(limit) || 20)),
+        offset: Math.max(0, Number(offset) || 0),
+      });
+      const users = (result.body?.result?.userprofiles || []).map((user) => ({
+        uid: Number(user.userId),
+        nickname: user.nickname || '网易云用户',
+        avatarUrl: coverWithSize(user.avatarUrl, 200),
+        signature: user.signature || '',
+        follows: Number(user.follows || 0),
+        followeds: Number(user.followeds || 0),
+        playlistCount: Number(user.playlistCount || 0),
+      })).filter((user) => Number.isFinite(user.uid) && user.uid > 0);
+      return { users, hasMore: Boolean(result.body?.result?.more) };
+    } catch (err) {
+      return { users: [], hasMore: false, error: String(err?.message || err) };
+    }
+  });
+
+  ipcMain.handle('netease:public-profile', async (_event, uid) => {
+    const publicUid = Number(uid);
+    if (!Number.isFinite(publicUid) || publicUid <= 0) return { profile: null, playlists: [], error: 'invalid uid' };
+    try {
+      const [detail, list] = await Promise.all([
+        neteaseApi.user_detail({ uid: publicUid }),
+        neteaseApi.user_playlist({ uid: publicUid, limit: 100, offset: 0 }),
+      ]);
+      const rawProfile = detail.body?.profile || {};
+      const profile = {
+        uid: Number(rawProfile.userId || publicUid),
+        nickname: rawProfile.nickname || '网易云用户',
+        avatarUrl: coverWithSize(rawProfile.avatarUrl, 200),
+        signature: rawProfile.signature || '',
+        follows: Number(rawProfile.follows || 0),
+        followeds: Number(rawProfile.followeds || 0),
+        playlistCount: Number(rawProfile.playlistCount || 0),
+        level: Number(detail.body?.level || 0),
+      };
+      const allPlaylists = (list.body?.playlist || []).map(mapNeteasePlaylist);
+      const likedPlaylist = allPlaylists.find((playlist) => playlist.specialType === 5) || null;
+      const playlists = allPlaylists.filter((playlist) => playlist.specialType !== 5);
+      return { profile, playlists, likedPlaylist };
+    } catch (err) {
+      console.warn('[netease] public profile failed', err?.message || err);
+      return { profile: null, playlists: [], error: String(err?.message || err) };
+    }
+  });
+
   ipcMain.handle('netease:user-playlists', async () => {
     if (!neteaseCookie) return { playlists: [] };
     try {
@@ -1359,7 +1413,7 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('netease:recommend-playlists', async () => {
     try {
-      const result = await neteaseApi.personalized({ limit: 12, cookie: neteaseCookie });
+      const result = await neteaseApi.personalized({ limit: 12,  });
       return (result.body?.result || []).map(mapNeteasePlaylist);
     } catch (err) {
       console.warn('[netease] recommend failed', err?.message || err);
@@ -1369,11 +1423,11 @@ app.whenReady().then(() => {
   ipcMain.handle('netease:home', async () => {
     const safe = (request, fallback) => Promise.resolve(request).catch(() => fallback);
     const [personalized, top, newsong, resource, toplist] = await Promise.all([
-      safe(neteaseApi.personalized({ limit: 12, cookie: neteaseCookie }), null),
-      safe(neteaseApi.top_playlist({ cat: '全部', limit: 12, cookie: neteaseCookie }), null),
-      safe(neteaseApi.personalized_newsong({ limit: 12, cookie: neteaseCookie }), null),
-      safe(neteaseApi.recommend_resource({ cookie: neteaseCookie }), null),
-      safe(neteaseApi.toplist({ cookie: neteaseCookie }), null),
+      safe(neteaseApi.personalized({ limit: 12,  }), null),
+      safe(neteaseApi.top_playlist({ cat: '全部', limit: 12,  }), null),
+      safe(neteaseApi.personalized_newsong({ limit: 12,  }), null),
+      safe(neteaseApi.recommend_resource({  }), null),
+      safe(neteaseApi.toplist({  }), null),
     ]);
 
     const recommended = (personalized?.body?.result || []).map(mapNeteasePlaylist);
@@ -1408,7 +1462,7 @@ app.whenReady().then(() => {
         type: 1000,
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const playlists = (result.body?.result?.playlists || []).map(mapNeteasePlaylist);
       return { playlists, hasMore: playlists.length >= (Number(limit) || 12) };
@@ -1425,7 +1479,7 @@ app.whenReady().then(() => {
         type: 100,
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const artists = (result.body?.result?.artists || []).map(mapNeteaseArtist);
       return { artists, hasMore: artists.length >= (Number(limit) || 12) };
@@ -1441,7 +1495,7 @@ app.whenReady().then(() => {
         type: 10,
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const albums = (result.body?.result?.albums || []).map((album) => mapNeteaseAlbum(album));
       return { albums, hasMore: albums.length >= (Number(limit) || 12) };
@@ -1466,7 +1520,7 @@ app.whenReady().then(() => {
         rid,
         limit: Math.max(1, Number(limit) || 20),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const programs = (result.body?.programs || []).map(mapNeteasePodcastProgram);
       return {
@@ -1484,7 +1538,7 @@ app.whenReady().then(() => {
         type: 1004,
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const raw = result.body?.result?.mvs || [];
       const mvs = raw.map((mv) => {
@@ -1513,12 +1567,12 @@ app.whenReady().then(() => {
     try {
       const rid = Number(id);
       const [detail, programResult] = await Promise.all([
-        neteaseApi.dj_detail({ rid, cookie: neteaseCookie }),
+        neteaseApi.dj_detail({ rid,  }),
         neteaseApi.dj_program({
           rid,
           limit: Math.max(1, Number(limit) || 20),
           offset: Math.max(0, Number(offset) || 0),
-          cookie: neteaseCookie,
+          
         }),
       ]);
       const raw = detail.body?.data;
@@ -1541,7 +1595,7 @@ app.whenReady().then(() => {
         type: 1009,
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const podcasts = (result.body?.result?.djRadios || []).map(mapNeteasePodcast);
       return { podcasts, hasMore: podcasts.length >= (Number(limit) || 12) };
@@ -1553,10 +1607,10 @@ app.whenReady().then(() => {
     try {
       const cloudId = Number(id);
       const [detail, songs, followCount, intro] = await Promise.all([
-        neteaseApi.artist_detail({ id: cloudId, cookie: neteaseCookie }),
-        neteaseApi.artist_songs({ id: cloudId, limit: 50, offset: 0, cookie: neteaseCookie }),
-        neteaseApi.artist_follow_count({ id: cloudId, cookie: neteaseCookie }).catch(() => null),
-        neteaseApi.artist_desc({ id: cloudId, cookie: neteaseCookie }).catch(() => null),
+        neteaseApi.artist_detail({ id: cloudId,  }),
+        neteaseApi.artist_songs({ id: cloudId, limit: 50, offset: 0,  }),
+        neteaseApi.artist_follow_count({ id: cloudId,  }).catch(() => null),
+        neteaseApi.artist_desc({ id: cloudId,  }).catch(() => null),
       ]);
       const raw = detail.body?.data?.artist;
       if (!raw) throw new Error('artist not found');
@@ -1580,7 +1634,7 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('netease:artist-stat', async (_event, id) => {
     try {
-      const result = await neteaseApi.artist_follow_count({ id: Number(id), cookie: neteaseCookie });
+      const result = await neteaseApi.artist_follow_count({ id: Number(id),  });
       return { followers: Number(result.body?.data?.fansCnt || 0) };
     } catch (err) {
       return { followers: 0, error: String(err?.message || err) };
@@ -1592,7 +1646,7 @@ app.whenReady().then(() => {
         id: Number(id),
         limit: Math.max(1, Number(limit) || 12),
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       return { mvs: (result.body?.mvs || []).map(mapNeteaseMv) };
     } catch (err) {
@@ -1602,7 +1656,7 @@ app.whenReady().then(() => {
   ipcMain.handle('netease:mv', async (_event, id) => {
     try {
       const mvid = Number(id);
-      const result = await neteaseApi.mv_detail({ mvid, cookie: neteaseCookie });
+      const result = await neteaseApi.mv_detail({ mvid,  });
       const raw = result.body?.data;
       if (!raw) throw new Error('mv not found');
       return { mv: mapNeteaseMv(raw) };
@@ -1617,7 +1671,7 @@ app.whenReady().then(() => {
         id: Number(id),
         limit: pageSize,
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const albums = (result.body?.hotAlbums || []).map((album) => mapNeteaseAlbum(album));
       return {
@@ -1648,13 +1702,13 @@ app.whenReady().then(() => {
               keywords: keyword,
               type: 1000,
               limit: 20,
-              cookie: neteaseCookie,
+              
             }),
             null,
           )
         : null,
-      safe(neteaseApi.simi_artist({ id: cloudId, cookie: neteaseCookie }), null),
-      safe(neteaseApi.artist_album({ id: cloudId, limit: 60, offset: 0, cookie: neteaseCookie }), null),
+      safe(neteaseApi.simi_artist({ id: cloudId,  }), null),
+      safe(neteaseApi.artist_album({ id: cloudId, limit: 60, offset: 0,  }), null),
     ]);
 
     const candidates = (searchResult?.body?.result?.playlists || [])
@@ -1663,7 +1717,7 @@ app.whenReady().then(() => {
     const verified = await Promise.all(
       candidates.map(async (playlist) => {
         const detail = await safe(
-          neteaseApi.playlist_detail({ id: playlist.cloudId, s: 0, cookie: neteaseCookie }),
+          neteaseApi.playlist_detail({ id: playlist.cloudId, s: 0,  }),
           null,
         );
         const rawTracks = detail?.body?.playlist?.tracks || [];
@@ -1709,7 +1763,7 @@ app.whenReady().then(() => {
   ipcMain.handle('netease:album', async (_event, id) => {
     try {
       const cloudId = Number(id);
-      const result = await neteaseApi.album({ id: cloudId, cookie: neteaseCookie });
+      const result = await neteaseApi.album({ id: cloudId,  });
       const raw = result.body?.album;
       if (!raw) throw new Error('album not found');
       const songs = result.body?.songs || [];
@@ -1727,8 +1781,8 @@ app.whenReady().then(() => {
       const cloudId = Number(id);
       if (!Number.isFinite(cloudId)) throw new Error('bad playlist id');
       const [detail, firstTracks] = await Promise.all([
-        neteaseApi.playlist_detail({ id: cloudId, cookie: neteaseCookie }),
-        neteaseApi.playlist_track_all({ id: cloudId, limit: 100, offset: 0, cookie: neteaseCookie }),
+        neteaseApi.playlist_detail({ id: cloudId,  }),
+        neteaseApi.playlist_track_all({ id: cloudId, limit: 100, offset: 0,  }),
       ]);
       const raw = detail.body?.playlist;
       if (!raw) throw new Error('playlist not found');
@@ -1750,7 +1804,7 @@ app.whenReady().then(() => {
         id: Number(id),
         limit: pageSize,
         offset: Math.max(0, Number(offset) || 0),
-        cookie: neteaseCookie,
+        
       });
       const tracks = (result.body?.songs || []).map(netease.normalizeTrack);
       return { tracks, hasMore: tracks.length >= pageSize };

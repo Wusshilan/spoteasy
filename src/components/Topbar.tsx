@@ -27,7 +27,8 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
   const [updating, setUpdating] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const appMenuRef = useRef<HTMLDivElement>(null);
-  const displayName = netease.loggedIn ? netease.nickname : '音乐爱好者';
+  const displayName = netease.loggedIn ? netease.nickname : netease.publicProfile?.nickname || '音乐爱好者';
+  const displayAvatar = netease.loggedIn ? netease.avatar : netease.publicProfile?.avatarUrl;
   const win = window.spoteasy?.win;
   const homeActive = route.name === 'home';
   const browseActive = route.name === 'browse';
@@ -245,19 +246,30 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
 
         <div className="profile" ref={menuRef}>
           <button type="button" className="profile-btn" onClick={() => setMenuOpen((value) => !value)}>
-            <Avatar hue={158} label={displayName.slice(0, 1)} size={36} src={netease.avatar} />
+            <Avatar hue={158} label={displayName.slice(0, 1)} size={36} src={displayAvatar} />
           </button>
 
           {menuOpen && (
             <div className="profile-menu">
               <div className="profile-head">
-                <Avatar hue={158} label={displayName.slice(0, 1)} size={40} src={netease.avatar} />
+                <Avatar hue={158} label={displayName.slice(0, 1)} size={40} src={displayAvatar} />
                 <div>
                   <div className="profile-head-name">{displayName}</div>
-                  <div className="profile-head-sub">{netease.loggedIn ? '已登录' : '未登录'}</div>
+                  <div className="profile-head-sub">{netease.loggedIn ? '已登录' : netease.publicProfile ? `公开数据 · UID ${netease.publicProfile.uid}` : '未选择用户'}</div>
                 </div>
               </div>
               <div className="menu-sep" />
+              <button
+                type="button"
+                className="menu-row"
+                onClick={() => {
+                  setMenuOpen(false);
+                  netease.openProfile();
+                }}
+              >
+                <Icon name="users" size={16} />
+                <span>{netease.publicProfile ? '切换公开用户' : '选择公开用户'}</span>
+              </button>
               <button
                 type="button"
                 className="menu-row"

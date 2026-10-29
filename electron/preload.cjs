@@ -71,6 +71,8 @@ contextBridge.exposeInMainWorld('spoteasy', {
     search: (keyword, offset, limit) => ipcRenderer.invoke('netease:search', keyword, offset, limit),
     lyric: (id) => ipcRenderer.invoke('netease:lyric', id),
     status: () => ipcRenderer.invoke('netease:status'),
+    searchUsers: (keyword, offset, limit) => ipcRenderer.invoke('netease:search-users', keyword, offset, limit),
+    publicProfile: (uid) => ipcRenderer.invoke('netease:public-profile', uid),
     userPlaylists: () => ipcRenderer.invoke('netease:user-playlists'),
     albumSublist: () => ipcRenderer.invoke('netease:album-sublist'),
     artistSublist: () => ipcRenderer.invoke('netease:artist-sublist'),

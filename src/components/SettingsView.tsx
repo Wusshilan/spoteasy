@@ -176,14 +176,27 @@ export function SettingsView() {
           <section className="settings-section">
             <h2>账号</h2>
             <div className="settings-row">
-              <div className="settings-label">{netease.loggedIn ? netease.nickname : '音乐爱好者'}</div>
+              <div className="settings-label">
+                {netease.loggedIn
+                  ? netease.nickname
+                  : netease.publicProfile
+                    ? `${netease.publicProfile.nickname} · 公开主页`
+                    : '未选择用户'}
+              </div>
               <div className="settings-control settings-actions">
+                <button type="button" className="settings-btn primary" onClick={netease.openProfile}>
+                  <Icon name="users" size={16} />
+                  {netease.publicProfile ? '切换公开用户' : '选择公开用户'}
+                </button>
                 <button type="button" className="settings-btn" onClick={() => (netease.loggedIn ? void netease.logout() : netease.openLogin())}>
                   <Icon name="user" size={16} />
-                  {netease.loggedIn ? '退出登录' : '登录网易云'}
+                  {netease.loggedIn ? '退出登录' : '扫码登录'}
                 </button>
               </div>
             </div>
+            <p className="settings-help">
+              {netease.publicProfile ? `UID ${netease.publicProfile.uid} · 只读取公开数据` : '扫码登录是可选的，只用于写操作和私密内容。'}
+            </p>
           </section>
 
           <section className="settings-section">

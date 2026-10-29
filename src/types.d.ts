@@ -78,6 +78,30 @@ declare global {
     sessionExpired?: boolean;
   }
 
+  interface NeteasePublicUser {
+    uid: number;
+    nickname: string;
+    avatarUrl?: string;
+    signature?: string;
+    follows?: number;
+    followeds?: number;
+    playlistCount?: number;
+    level?: number;
+  }
+
+  interface NeteaseUserSearchResult {
+    users: NeteasePublicUser[];
+    hasMore: boolean;
+    error?: string;
+  }
+
+  interface NeteasePublicProfile {
+    profile: NeteasePublicUser | null;
+    playlists: Playlist[];
+    likedPlaylist: Playlist | null;
+    error?: string;
+  }
+
   interface NeteaseQr {
     key: string;
     qrimg: string;
@@ -278,6 +302,8 @@ declare global {
         search(keyword: string, offset?: number, limit?: number): Promise<NeteaseSearchResult>;
         lyric(id: number): Promise<NeteaseLyric>;
         status(): Promise<NeteaseStatus>;
+        searchUsers(keyword: string, offset?: number, limit?: number): Promise<NeteaseUserSearchResult>;
+        publicProfile(uid: number): Promise<NeteasePublicProfile>;
         userPlaylists(): Promise<{ playlists: Playlist[]; error?: string }>;
         albumSublist(): Promise<{ albums: NeteaseAlbum[]; error?: string }>;
         artistSublist(): Promise<{ artists: NeteaseArtist[]; error?: string }>;

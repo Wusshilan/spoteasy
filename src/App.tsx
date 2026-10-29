@@ -28,6 +28,7 @@ import { PlayerBar } from './components/PlayerBar';
 import { ContextMenu } from './components/ContextMenu';
 import { EditTrackDialog } from './components/EditTrackDialog';
 import { LoginDialog } from './components/LoginDialog';
+import { ProfileDialog } from './components/ProfileDialog';
 import { SessionBanner } from './components/SessionBanner';
 import { Toasts } from './components/Toasts';
 import { getTrack, playlists as seedPlaylists, type Playlist } from './data/mock';
@@ -685,6 +686,7 @@ export default function App() {
       <EditTrackDialog />
       <SessionBanner />
       <LoginDialog />
+      <ProfileDialog />
       <Toasts />
     </div>
   );

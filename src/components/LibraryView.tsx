@@ -122,7 +122,7 @@ export function LibraryView({
       liked.push({
         key: 'liked',
         kind: 'liked',
-        title: '我喜欢的音乐',
+        title: netease.loggedIn ? '我喜欢的音乐' : '公开喜欢的音乐',
         sub: `歌单 · ${netease.nickname}`,
         hue: 282,
         variant: 3,
@@ -405,17 +405,17 @@ export function LibraryView({
         </div>
       </div>
 
-      {!netease.loggedIn && !(demoPlaylists && demoPlaylists.length > 0) ? (
-        <div className="library-page-empty">
-          <h2>你的音乐库是空的</h2>
-          <p>登录后同步歌单、收藏专辑和关注艺人。</p>
-          <button type="button" className="primary-btn" onClick={netease.openLogin}>
-            登录
-          </button>
-        </div>
-      ) : netease.myMusicLoading && items.length === 0 ? (
+      {netease.myMusicLoading && items.length === 0 ? (
         <div className="library-page-empty">
           <p>正在加载音乐库…</p>
+        </div>
+      ) : !netease.hasProfile && !netease.loggedIn && !(demoPlaylists && demoPlaylists.length > 0) ? (
+        <div className="library-page-empty">
+          <h2>先选择一个公开用户</h2>
+          <p>输入 UID 或用户名，读取公开歌单和喜欢的音乐，不需要登录。</p>
+          <button type="button" className="primary-btn" onClick={netease.openProfile}>
+            选择公开用户
+          </button>
         </div>
       ) : items.length === 0 ? (
         <div className="library-page-empty">

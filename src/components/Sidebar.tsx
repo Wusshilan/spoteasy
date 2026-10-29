@@ -306,11 +306,11 @@ export function Sidebar({
     const artistItems: SideItem[] = [];
     const all: SideItem[] = [];
 
-    if (netease.loggedIn) {
+    if (netease.loggedIn || netease.hasProfile) {
       all.push({
         key: 'liked',
         kind: 'liked',
-        title: '我喜欢的音乐',
+        title: netease.loggedIn ? '我喜欢的音乐' : '公开喜欢的音乐',
         sub: `歌单 · ${netease.nickname}`,
         hue: 282,
         variant: 3,
@@ -463,11 +463,11 @@ export function Sidebar({
 
   const catalog = useMemo<SideItem[]>(() => {
     const base: SideItem[] = [];
-    if (netease.loggedIn) {
+    if (netease.loggedIn || netease.hasProfile) {
       base.push({
         key: 'liked',
         kind: 'liked',
-        title: '我喜欢的音乐',
+        title: netease.loggedIn ? '我喜欢的音乐' : '公开喜欢的音乐',
         sub: `歌单 · ${netease.nickname}`,
         hue: 282,
         variant: 3,
@@ -1146,9 +1146,9 @@ export function Sidebar({
             <div className="library-empty">
               {query
                 ? '没有找到内容'
-                : netease.loggedIn
-                  ? '音乐库还是空的'
-                  : '登录后同步歌单、专辑、艺人和播客'}
+                : netease.hasProfile
+                  ? '这个公开主页没有公开歌单'
+                  : '选择一个公开用户后显示公开歌单'}
             </div>
           )}
         </div>

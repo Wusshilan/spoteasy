@@ -105,14 +105,23 @@ export function SearchView({
     setMvs([]);
     const timer = window.setTimeout(async () => {
       const api = window.spoteasy?.netease;
-      const [songResult, podcastResult, albumResult, playlistResult, artistResult, mvResult] = await Promise.all([
-        netease.search(query, 0, LIMITS.songs).catch(() => ({ tracks: [], hasMore: false })),
-        (api ? api.searchPodcasts(query, 0, LIMITS.podcasts) : Promise.resolve({ podcasts: [], hasMore: false })).catch(() => ({ podcasts: [], hasMore: false })),
-        (api ? api.searchAlbums(query, 0, LIMITS.albums) : Promise.resolve({ albums: [], hasMore: false })).catch(() => ({ albums: [], hasMore: false })),
-        (api ? api.searchPlaylists(query, 0, LIMITS.playlists) : Promise.resolve({ playlists: [], hasMore: false })).catch(() => ({ playlists: [], hasMore: false })),
-        (api ? api.searchArtists(query, 0, LIMITS.artists) : Promise.resolve({ artists: [], hasMore: false })).catch(() => ({ artists: [], hasMore: false })),
-        (api?.searchMvs ? api.searchMvs(query, 0, LIMITS.mvs) : Promise.resolve({ mvs: [], hasMore: false })).catch(() => ({ mvs: [], hasMore: false })),
-      ]);
+      const wait = () => new Promise((resolve) => window.setTimeout(resolve, 220));
+      const songResult = await netease.search(query, 0, LIMITS.songs).catch(() => ({ tracks: [], hasMore: false }));
+      if (!alive) return;
+      await wait();
+      const podcastResult = await (api ? api.searchPodcasts(query, 0, LIMITS.podcasts) : Promise.resolve({ podcasts: [], hasMore: false })).catch(() => ({ podcasts: [], hasMore: false }));
+      if (!alive) return;
+      await wait();
+      const albumResult = await (api ? api.searchAlbums(query, 0, LIMITS.albums) : Promise.resolve({ albums: [], hasMore: false })).catch(() => ({ albums: [], hasMore: false }));
+      if (!alive) return;
+      await wait();
+      const playlistResult = await (api ? api.searchPlaylists(query, 0, LIMITS.playlists) : Promise.resolve({ playlists: [], hasMore: false })).catch(() => ({ playlists: [], hasMore: false }));
+      if (!alive) return;
+      await wait();
+      const artistResult = await (api ? api.searchArtists(query, 0, LIMITS.artists) : Promise.resolve({ artists: [], hasMore: false })).catch(() => ({ artists: [], hasMore: false }));
+      if (!alive) return;
+      await wait();
+      const mvResult = await (api?.searchMvs ? api.searchMvs(query, 0, LIMITS.mvs) : Promise.resolve({ mvs: [], hasMore: false })).catch(() => ({ mvs: [], hasMore: false }));
       if (!alive) return;
       setSongs(songResult.tracks || []);
       setPodcasts(podcastResult.podcasts || []);
