@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Cover } from './CoverArt';
 import { Icon } from './Icons';
 import { lyrics as demoLyrics, type LyricLine } from '../data/mock';
@@ -23,6 +23,8 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
   const [coverColor, setCoverColor] = useState<string | null>(null);
   const [cloudLyrics, setCloudLyrics] = useState<LyricLine[] | null>(null);
   const lyricsScrollRef = useRef<HTMLDivElement>(null);
+  const coverRef = useRef<HTMLDivElement>(null);
+  const flipFromRef = useRef<DOMRect | null>(null);
   const lyricRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
@@ -54,6 +56,8 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
       if (idleTimer.current) window.clearTimeout(idleTimer.current);
       if (immersiveRef.current) return;
       idleTimer.current = window.setTimeout(() => {
+        flipFromRef.current = coverRef.current?.getBoundingClientRect() ?? null;
+        setLyricsOpen(false);
         immersiveRef.current = true;
         setImmersive(true);
       }, 5000);
@@ -61,6 +65,7 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
     const exitImmersive = () => {
       if (!immersiveRef.current || wakingRef.current) return;
       wakingRef.current = true;
+      flipFromRef.current = coverRef.current?.getBoundingClientRect() ?? null;
       setWaking(true);
       if (wakeTimer.current) window.clearTimeout(wakeTimer.current);
       wakeTimer.current = window.setTimeout(() => {
@@ -121,6 +126,33 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
       alive = false;
     };
   }, [lyricsOpen, netease, track?.id, track?.source, track?.cloudId]);
+
+  useLayoutEffect(() => {
+    const from = flipFromRef.current;
+    if (!from) return;
+    flipFromRef.current = null;
+    const element = coverRef.current;
+    if (!element) return;
+    const to = element.getBoundingClientRect();
+    if (!to.width || !to.height) return;
+    const scaleX = from.width / to.width;
+    const scaleY = from.height / to.height;
+    const dx = from.left + from.width / 2 - (to.left + to.width / 2);
+    const dy = from.top + from.height / 2 - (to.top + to.height / 2);
+    element.style.transition = 'none';
+    element.style.transformOrigin = 'center center';
+    element.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
+    void element.offsetWidth;
+    requestAnimationFrame(() => {
+      element.style.transition = 'transform 0.52s cubic-bezier(0.22, 0.9, 0.28, 1)';
+      element.style.transform = 'translate(0, 0) scale(1, 1)';
+    });
+    const timer = window.setTimeout(() => {
+      element.style.transition = '';
+      element.style.transform = '';
+    }, 580);
+    return () => window.clearTimeout(timer);
+  }, [immersive]);
 
   const lyricLines = useMemo<LyricLine[]>(() => {
     if (!track || !lyricsOpen) return [];
@@ -246,14 +278,11 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
         </div>
       </header>
       <div className={`np-full-stage ${lyricsOpen ? 'has-lyrics' : ''}`}>
-        <div className="np-full-cover-wrap">
+        <div className="np-full-cover-wrap" ref={coverRef}>
           <button
             type="button"
             className="np-full-cover-btn"
-            onClick={() => {
-              if (immersive) return;
-              setLyricsOpen((value) => !value);
-            }}
+            onClick={() => setLyricsOpen((value) => !value)}
             title={lyricsOpen ? '隐藏歌词' : '显示歌词'}
           >
             <Cover

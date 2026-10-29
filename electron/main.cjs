@@ -393,18 +393,19 @@ async function coverHue(url) {
   if (!key) return null;
   if (coverHueCache.has(key)) return coverHueCache.get(key);
   try {
-    const response = await fetch(key, {
+    const target = /^https?:\/\//i.test(key) ? coverWithSize(key, 64) : key;
+    const response = await fetch(target, {
       headers: {
         'User-Agent':
           'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36',
         Referer: 'https://music.163.com/',
       },
-      signal: AbortSignal.timeout(8000),
+      signal: AbortSignal.timeout(5000),
     });
     if (!response.ok) throw new Error(`cover ${response.status}`);
     const image = nativeImage.createFromBuffer(Buffer.from(await response.arrayBuffer()));
     if (image.isEmpty()) throw new Error('empty cover');
-    const small = image.resize({ width: 16, height: 16 });
+    const small = image.resize({ width: 8, height: 8 });
     const bitmap = small.toBitmap();
     const buckets = Array.from({ length: 36 }, () => ({ w: 0, x: 0, y: 0, r: 0, g: 0, b: 0 }));
     let fallbackH = 0;

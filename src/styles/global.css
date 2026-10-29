@@ -9527,3 +9527,50 @@ html[data-reduce-motion='1'] *::after {
   color: var(--text-sub);
   font-size: 11px;
 }
+
+
+/* 0.1.40 艺人页背景图贴齐卡片右边缘 */
+.artist-hero-bg {
+  inset: 0 -16px 0 0;
+}
+
+
+/* 0.1.40 沉浸动画：封面 FLIP，不跳；收回只做卡片收拢，不做渐变 */
+.np-full-cover-wrap {
+  transition: none !important;
+}
+
+.np-full.is-immersive .np-full-stage.has-lyrics .np-full-lyrics {
+  width: min(38%, 520px) !important;
+  margin-left: 0 !important;
+  margin-right: 44px !important;
+  opacity: 1 !important;
+}
+
+.np-full.is-immersive .np-full-stage.has-lyrics .np-full-cover-wrap {
+  width: min(500px, 50vh, 44%) !important;
+}
+
+@keyframes npImmersiveClipOut {
+  from {
+    clip-path: inset(16px round 16px);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(72px 16px round 24px);
+    opacity: 1;
+  }
+}
+
+.np-full.is-immersive.is-waking {
+  animation: npImmersiveClipOut 0.38s var(--ease) forwards;
+}
+
+.np-immersive-blackout,
+.np-immersive-blackout.is-waking {
+  transition: none !important;
+}
+
+.np-immersive-blackout.is-waking {
+  opacity: 1;
+}

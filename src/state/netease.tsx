@@ -223,6 +223,11 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
   const closeProfile = useCallback(() => setProfileOpen(false), []);
 
   useEffect(() => {
+    if (!status.loggedIn || !status.uid || publicUid === status.uid) return;
+    void choosePublicUser(status.uid).catch(() => undefined);
+  }, [choosePublicUser, publicUid, status.loggedIn, status.uid]);
+
+  useEffect(() => {
     if (!publicUid) return;
     let alive = true;
     loadPublicProfile(publicUid).catch(() => {
