@@ -3,6 +3,7 @@
 const { app, BrowserWindow, ipcMain, shell, nativeTheme, nativeImage, dialog, protocol, safeStorage, screen } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
+const { spawn } = require('node:child_process');
 const os = require('node:os');
 const crypto = require('node:crypto');
 const { Readable } = require('node:stream');
@@ -1921,6 +1922,67 @@ app.whenReady().then(() => {
     userData: app.getPath('userData'),
     libraryPath: libraryFile(),
   }));
+  ipcMain.handle('app:latest-release', async () => {
+    try {
+      const response = await fetch('https://api.github.com/repos/Wusshilan/spoteasy/releases/latest', {
+        headers: {
+          'User-Agent': 'Spoteasy',
+          Accept: 'application/vnd.github+json',
+        },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (!response.ok) throw new Error(`github ${response.status}`);
+      const data = await response.json();
+      return {
+        version: String(data.tag_name || '').replace(/^v/i, ''),
+        url: data.html_url || 'https://github.com/Wusshilan/spoteasy/releases',
+        publishedAt: data.published_at || '',
+        notes: String(data.body || '').slice(0, 2000),
+      };
+    } catch (err) {
+      return { error: String(err?.message || err) };
+    }
+  });
+
+  ipcMain.handle('app:install-update', async (_event, url) => {
+    const target = String(url || '');
+    if (!/^https:\/\/github\.com\/Wusshilan\/spoteasy\/releases\/download\//i.test(target)) {
+      return { ok: false, error: 'invalid update url' };
+    }
+    try {
+      const fileName = decodeURIComponent(target.split('/').pop() || 'Spoteasy-Setup.exe');
+      const destination = path.join(app.getPath('temp'), fileName);
+      const response = await fetch(target, { headers: { 'User-Agent': 'Spoteasy' }, signal: AbortSignal.timeout(30000) });
+      if (!response.ok || !response.body) throw new Error(`download ${response.status}`);
+      const file = fs.createWriteStream(destination);
+      await new Promise((resolve, reject) => {
+        const reader = response.body.getReader();
+        const pump = async () => {
+          try {
+            while (true) {
+              const { done, value } = await reader.read();
+              if (done) break;
+              if (!file.write(Buffer.from(value))) {
+                await new Promise((next) => file.once('drain', next));
+              }
+            }
+            file.end(resolve);
+          } catch (error) {
+            file.destroy();
+            reject(error);
+          }
+        };
+        void pump();
+      });
+      const child = spawn(destination, ['/S'], { detached: true, stdio: 'ignore' });
+      child.unref();
+      app.quit();
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: String(err?.message || err) };
+    }
+  });
+
   ipcMain.handle('app:open-data-folder', async () => {
     await shell.openPath(app.getPath('userData'));
   });

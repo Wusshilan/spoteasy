@@ -9251,3 +9251,70 @@ html.shot-mode *::after {
   background: rgba(30, 215, 96, 0.25);
   color: #fff;
 }
+
+/* 0.1.32 沉浸退出最后一帧交叉淡出，避免硬切 */
+@keyframes npImmersiveClipOut {
+  from {
+    clip-path: inset(16px round 16px);
+    opacity: 1;
+  }
+  to {
+    clip-path: inset(72px 16px round 24px);
+    opacity: 0;
+  }
+}
+
+/* 0.1.32 Spotify 式偏好设置 */
+.spotify-settings {
+  max-width: 760px;
+}
+
+.spotify-settings .settings-section {
+  padding: 22px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.spotify-settings .settings-section:last-child {
+  border-bottom: 0;
+}
+
+.spotify-settings .settings-row {
+  min-height: 42px;
+  align-items: center;
+}
+
+.spotify-settings .settings-label {
+  color: var(--text);
+}
+
+.spotify-settings .settings-help {
+  margin-top: 8px;
+}
+
+html[data-compact-library='1'] .library-grid {
+  grid-template-columns: repeat(auto-fill, minmax(124px, 1fr));
+  gap: 12px;
+}
+
+html[data-reduce-motion='1'] *,
+html[data-reduce-motion='1'] *::before,
+html[data-reduce-motion='1'] *::after {
+  animation-duration: 0.01ms !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+.library-card {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: pointer;
+}
+
+.library-card-play {
+  border: 0;
+  cursor: pointer;
+}

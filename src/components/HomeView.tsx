@@ -290,7 +290,7 @@ export function HomeView({ navigate }: HomeViewProps) {
     const pool = [...recommended, ...resource, ...top, ...charts].filter((item) => item.coverUrl);
     if (dailyCover) pool.push({ id: '__daily-color', name: '每日推荐', desc: '', owner: '', hue: dailyHue, variant: 0, tracks: [], coverUrl: dailyCover, kind: 'daily' });
     if (!pool.length) {
-      setHeroHue(player.track?.hue ?? 210);
+      setHeroHue(210);
       return;
     }
     let alive = true;
@@ -306,7 +306,7 @@ export function HomeView({ navigate }: HomeViewProps) {
     return () => {
       alive = false;
     };
-  }, [charts, dailyCover, dailyHue, player.track?.hue, recommended, resource, top]);
+  }, [charts, dailyCover, dailyHue, recommended, resource, top]);
 
   useEffect(() => {
     document.documentElement.style.setProperty('--home-hue', String(heroHue));

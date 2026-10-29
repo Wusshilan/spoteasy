@@ -4,7 +4,7 @@ import { Cover } from './CoverArt';
 import { CreateMenu, type CreateAnchor, type CreateKind } from './CreateMenu';
 import { useNetease } from '../state/netease';
 import { usePlayer } from '../state/player';
-import type { Playlist } from '../data/mock';
+import { registerTracks, type Playlist } from '../data/mock';
 import type { Route } from '../routing';
 
 type Filter = 'all' | 'playlists' | 'podcasts' | 'albums' | 'artists';
@@ -21,6 +21,7 @@ interface LibraryItem {
   owner: string;
   addedAt?: number;
   trackIds?: string[];
+  cloudId?: number;
   open(): void;
 }
 
@@ -197,6 +198,7 @@ export function LibraryView({
         hue: artist.hue,
         variant: artist.variant,
         owner: artist.name,
+        cloudId: artist.cloudId,
         open: () => navigate({ name: 'cloudArtist', id: String(artist.cloudId) }),
       });
     }
@@ -256,6 +258,27 @@ export function LibraryView({
 
     return filtered;
   }, [demoPlaylists, filter, localPlaylists, navigate, netease, player.history, player.liked, query, sort]);
+
+  const playItem = async (item: LibraryItem) => {
+    if (item.kind === 'artist' && item.cloudId) {
+      try {
+        const result = await window.spoteasy?.netease?.artist(item.cloudId);
+        const tracks = result?.tracks || [];
+        if (tracks.length) {
+          registerTracks(tracks);
+          player.play(tracks[0].id, tracks.map((track) => track.id), item.title);
+          return;
+        }
+      } catch {
+        /* fall through to open artist */
+      }
+    }
+    if (item.trackIds?.length) {
+      player.play(item.trackIds[0], item.trackIds, item.title);
+      return;
+    }
+    item.open();
+  };
 
   return (
     <div className="library-page">
@@ -377,13 +400,20 @@ export function LibraryView({
       ) : (
         <div className={`library-grid ${view === 'list' ? 'is-list' : ''}`}>
           {items.map((item) => (
-            <button
+            <div
               key={item.key}
-              type="button"
+              role="button"
+              tabIndex={0}
               className={`library-card ${item.kind === 'artist' ? 'is-artist' : ''} ${
                 item.kind === 'liked' ? 'is-liked' : ''
               }`}
               onClick={item.open}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  item.open();
+                }
+              }}
               title={`${item.title} — ${item.sub}`}
             >
               <span className={`library-card-art ${item.kind}`}>
@@ -394,9 +424,20 @@ export function LibraryView({
                 ) : (
                   <Cover hue={item.hue} variant={item.variant} label={item.title} src={item.coverUrl} />
                 )}
-                <span className="library-card-play">
-                  <Icon name="play" size={18} />
-                </span>
+                {(item.kind === 'liked' || item.kind === 'playlist' || (item.kind === 'artist' && item.cloudId)) && (
+                  <button
+                    type="button"
+                    className="library-card-play"
+                    aria-label={`播放 ${item.title}`}
+                    title={`播放 ${item.title}`}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      void playItem(item);
+                    }}
+                  >
+                    <Icon name="play" size={18} />
+                  </button>
+                )}
               </span>
               <span className="library-card-title">{item.title}</span>
               <span className="library-card-sub">
@@ -407,7 +448,7 @@ export function LibraryView({
                 )}
                 <span className="library-card-sub-text">{item.sub}</span>
               </span>
-            </button>
+            </div>
           ))}
         </div>
       )}

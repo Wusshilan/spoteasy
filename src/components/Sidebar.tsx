@@ -107,7 +107,10 @@ export function Sidebar({
   const { toast } = useUi();
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
-  const [sort, setSort] = useState<SortMode>('recent');
+  const [sort, setSort] = useState<SortMode>(() => {
+    const saved = localStorage.getItem('spoteasy.librarySort');
+    return saved === 'added' || saved === 'alpha' || saved === 'creator' ? saved : 'recent';
+  });
   const [sortOpen, setSortOpen] = useState(false);
   const [sortPos, setSortPos] = useState({ left: 0, top: 0, width: 252 });
   const [searchOpen, setSearchOpen] = useState(false);
@@ -168,6 +171,10 @@ export function Sidebar({
   useEffect(() => {
     localStorage.setItem('spoteasy.libraryView', viewMode);
   }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('spoteasy.librarySort', sort);
+  }, [sort]);
 
   useEffect(() => {
     if (!itemMenu) return;

@@ -7,9 +7,10 @@ import { usePlayer } from '../state/player';
 import { useUi } from '../state/ui';
 import type { Repeat } from '../state/player';
 
-type Tab = 'local' | 'playback' | 'appearance' | 'about';
+type Tab = 'preferences' | 'local' | 'playback' | 'appearance' | 'about';
 
 const tabs: Array<[Tab, string]> = [
+  ['preferences', '偏好设置'],
   ['local', '本地音乐'],
   ['playback', '播放'],
   ['appearance', '外观'],
@@ -53,7 +54,14 @@ export function SettingsView() {
   const netease = useNetease();
   const player = usePlayer();
   const ui = useUi();
-  const [tab, setTab] = useState<Tab>('local');
+  const [tab, setTab] = useState<Tab>('preferences');
+  const [zoom, setZoom] = useState(() => {
+    const value = Number(localStorage.getItem('spoteasy.zoom') || 100);
+    return value >= 70 && value <= 130 ? value : 100;
+  });
+  const [compactLibrary, setCompactLibrary] = useState(() => localStorage.getItem('spoteasy.compactLibrary') === '1');
+  const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem('spoteasy.reduceMotion') === '1');
+  const [updateState, setUpdateState] = useState<{ checking?: boolean; version?: string; url?: string; error?: string }>({});
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [stats, setStats] = useState<LibraryStats | null>(null);
   const [busy, setBusy] = useState(false);
@@ -81,6 +89,21 @@ export function SettingsView() {
       .then(setInfo)
       .catch(() => undefined);
   }, [refreshStats]);
+
+  useEffect(() => {
+    document.documentElement.style.zoom = `${zoom}%`;
+    localStorage.setItem('spoteasy.zoom', String(zoom));
+  }, [zoom]);
+
+  useEffect(() => {
+    document.documentElement.dataset.compactLibrary = compactLibrary ? '1' : '0';
+    localStorage.setItem('spoteasy.compactLibrary', compactLibrary ? '1' : '0');
+  }, [compactLibrary]);
+
+  useEffect(() => {
+    document.documentElement.dataset.reduceMotion = reduceMotion ? '1' : '0';
+    localStorage.setItem('spoteasy.reduceMotion', reduceMotion ? '1' : '0');
+  }, [reduceMotion]);
 
   useEffect(() => {
     refreshStats();
@@ -116,6 +139,19 @@ export function SettingsView() {
       ? Math.round((library.progress.done / library.progress.total) * 100)
       : 0;
 
+  const checkUpdate = async () => {
+    setUpdateState({ checking: true });
+    const result = await window.spoteasy?.app.latestRelease();
+    if (!result || result.error) {
+      setUpdateState({ error: result?.error || '检查失败' });
+      return;
+    }
+    setUpdateState({ version: result.version, url: result.url });
+    if (result.version === info?.version) ui.toast('已经是最新版本');
+  };
+
+  const latest = updateState.version && updateState.version !== info?.version;
+
   return (
     <div className="settings-page">
       <h1 className="settings-title">设置</h1>
@@ -134,6 +170,230 @@ export function SettingsView() {
           </button>
         ))}
       </div>
+
+      {tab === 'preferences' && (
+        <div className="settings-body spotify-settings">
+          <section className="settings-section">
+            <h2>账号</h2>
+            <div className="settings-row">
+              <div className="settings-label">{netease.loggedIn ? netease.nickname : '音乐爱好者'}</div>
+              <div className="settings-control settings-actions">
+                <button type="button" className="settings-btn" onClick={() => (netease.loggedIn ? void netease.logout() : netease.openLogin())}>
+                  <Icon name="user" size={16} />
+                  {netease.loggedIn ? '退出登录' : '登录网易云'}
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>语言</h2>
+            <div className="settings-row">
+              <div className="settings-label">选择语言</div>
+              <div className="settings-control">
+                <span className="settings-value">简体中文 (Simp)</span>
+              </div>
+            </div>
+            <p className="settings-help">当前版本只提供简体中文。</p>
+          </section>
+
+          <section className="settings-section">
+            <h2>儿童不宜内容</h2>
+            <div className="settings-row">
+              <div className="settings-label">允许播放儿童不宜内容</div>
+              <div className="settings-control"><span className="settings-value">网易云接口未返回明确分级，暂不可用</span></div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>音质</h2>
+            <div className="settings-row">
+              <div className="settings-label">串流播放品质</div>
+              <div className="settings-control">
+                <div className="segmented">
+                  {qualityOptions.map(([value, label]) => (
+                    <button key={value} type="button" className={netease.quality === value ? 'is-active' : ''} onClick={() => netease.setQuality(value)}>
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">下载</div>
+              <div className="settings-control"><span className="settings-value">当前版本未提供下载功能</span></div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>音乐库</h2>
+            <div className="settings-row">
+              <div className="settings-label">使用紧凑音乐库布局</div>
+              <div className="settings-control"><Switch on={compactLibrary} onClick={() => setCompactLibrary((value) => !value)} label="使用紧凑音乐库布局" /></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">从其他应用导入音乐</div>
+              <div className="settings-control">
+                <button type="button" className="settings-btn" disabled={busy || library.scanning} onClick={() => run(() => library.chooseFolder(), '本地库已更新')}>
+                  <Icon name="plus" size={16} /> 导入音乐库
+                </button>
+              </div>
+            </div>
+            <p className="settings-help">导入会添加本地文件夹并重新扫描索引，不会移动或删除原文件。</p>
+          </section>
+
+          <section className="settings-section">
+            <h2>显示</h2>
+            <div className="settings-row">
+              <div className="settings-label">减少动态效果</div>
+              <div className="settings-control"><Switch on={reduceMotion} onClick={() => setReduceMotion((value) => !value)} label="减少动态效果" /></div>
+            </div>
+            <p className="settings-help">开启后关闭界面过渡、骨架动画和沉浸卡片动画。</p>
+          </section>
+
+          <section className="settings-section">
+            <h2>视频和 Canvas</h2>
+            <div className="settings-row">
+              <div className="settings-label">Canvas</div>
+              <div className="settings-control"><span className="settings-value">当前版本未接入视频 Canvas</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">其他视频</div>
+              <div className="settings-control"><span className="settings-value">当前版本未接入视频</span></div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>收听动态和洞察</h2>
+            <div className="settings-row">
+              <div className="settings-label">私人点歌房</div>
+              <div className="settings-control"><span className="settings-value">需要 Spotify 社交服务，当前使用网易云</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">收听动态</div>
+              <div className="settings-control"><span className="settings-value">当前未接入社交动态</span></div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>播放增强</h2>
+            <div className="settings-row">
+              <div className="settings-label">淡入 / 淡出</div>
+              <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">无缝播放 / 自动混音</div>
+              <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">音量标准化 / 单声道</div>
+              <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>缩放级别</h2>
+            <div className="settings-row">
+              <div className="settings-label">界面缩放</div>
+              <div className="settings-control settings-actions">
+                {[70, 80, 90, 100, 110, 120, 130].map((value) => (
+                  <button key={value} type="button" className={`settings-btn ${zoom === value ? 'primary' : ''}`} onClick={() => setZoom(value)}>
+                    {value}%
+                  </button>
+                ))}
+                <button type="button" className="settings-btn" onClick={() => setZoom(100)}>重置</button>
+              </div>
+            </div>
+            <p className="settings-help">也可以用 Ctrl + / Ctrl - 调整缩放。</p>
+          </section>
+
+          <section className="settings-section">
+            <h2>播放</h2>
+            <div className="settings-row">
+              <div className="settings-label">音量</div>
+              <div className="settings-control">
+                <input className="settings-range" type="range" min="0" max="100" value={Math.round(player.volume * 100)} onChange={(event) => player.setVolume(Number(event.target.value) / 100)} aria-label="音量" />
+                <span className="settings-value">{Math.round(player.volume * 100)}%</span>
+              </div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">随机播放</div>
+              <div className="settings-control"><Switch on={player.shuffle} onClick={player.toggleShuffle} label="随机播放" /></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">循环模式</div>
+              <div className="settings-control">
+                <div className="segmented">
+                  {repeatOptions.map(([value, label]) => (
+                    <button key={value} type="button" className={player.repeat === value ? 'is-active' : ''} onClick={() => player.setRepeat(value)}>{label}</button>
+                  ))}
+                </div>
+              </div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">睡眠定时器</div>
+              <div className="settings-control settings-actions">
+                {ui.sleepAt ? (
+                  <>
+                    <span className="settings-value">已开启 · 约 {Math.max(0, Math.ceil((ui.sleepAt - Date.now()) / 60_000))} 分钟</span>
+                    <button type="button" className="settings-btn" onClick={() => ui.setSleepAt(null)}>取消</button>
+                  </>
+                ) : (
+                  [15, 30, 60].map((minutes) => (
+                    <button key={minutes} type="button" className="settings-btn" onClick={() => ui.setSleepAt(Date.now() + minutes * 60_000)}>{minutes} 分钟</button>
+                  ))
+                )}
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>存储</h2>
+            <div className="settings-row">
+              <div className="settings-label">曲目 / 文件夹</div>
+              <div className="settings-control"><span className="settings-value">{library.tracks.length} 首 · {library.folders.length} 个文件夹</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">封面缓存</div>
+              <div className="settings-control settings-actions">
+                <button type="button" className="settings-btn" disabled={busy || !stats || stats.covers === 0} onClick={() => run(() => library.clearCovers(), '封面缓存已清理')}>
+                  清理 {stats?.covers ?? 0} 张
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <section className="settings-section">
+            <h2>关于 Spoteasy</h2>
+            <div className="settings-row">
+              <div className="settings-label">当前版本</div>
+              <div className="settings-control"><span className="settings-value">v{info?.version ?? '0.1.32'}</span></div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">检查更新</div>
+              <div className="settings-control settings-actions">
+                <button type="button" className="settings-btn" disabled={updateState.checking} onClick={() => void checkUpdate()}>
+                  {updateState.checking ? '检查中…' : '检查更新'}
+                </button>
+                {latest && updateState.url && (
+                  <button
+                    type="button"
+                    className="settings-btn primary"
+                    onClick={async () => {
+                      const result = await window.spoteasy?.app.installUpdate(updateState.url || '');
+                      if (!result?.ok) ui.toast(result?.error || '下载更新失败');
+                    }}
+                  >
+                    下载并安装 {updateState.version}
+                  </button>
+                )}
+                {updateState.error && <span className="settings-value">{updateState.error}</span>}
+              </div>
+            </div>
+            <p className="settings-help">安装版请使用 NSIS Setup；portable 版本不能自动覆盖更新。</p>
+          </section>
+        </div>
+      )}
 
       {tab === 'local' && (
         <div className="settings-body">

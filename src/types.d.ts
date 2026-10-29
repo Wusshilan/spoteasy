@@ -264,6 +264,14 @@ declare global {
       app: {
         info(): Promise<AppInfo>;
         openDataFolder(): Promise<void>;
+        installUpdate(url: string): Promise<{ ok: boolean; error?: string }>;
+        latestRelease(): Promise<{
+          version?: string;
+          url?: string;
+          publishedAt?: string;
+          notes?: string;
+          error?: string;
+        }>;
       };
       netease: {
         search(keyword: string, offset?: number, limit?: number): Promise<NeteaseSearchResult>;

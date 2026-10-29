@@ -391,7 +391,7 @@ export function SearchView({
         const map = new Map(mvs.map((item) => [item.id, item]));
         for (const item of result.mvs || []) map.set(item.id, item);
         setMvs([...map.values()]);
-        setMore((state) => ({ ...state, artists: Boolean(result.hasMore) }));
+        setMore((state) => ({ ...state, mvs: Boolean(result.hasMore) }));
       }
     } catch {
       toast('加载失败');

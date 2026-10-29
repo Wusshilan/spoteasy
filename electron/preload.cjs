@@ -64,6 +64,8 @@ contextBridge.exposeInMainWorld('spoteasy', {
   app: {
     info: () => ipcRenderer.invoke('app:info'),
     openDataFolder: () => ipcRenderer.invoke('app:open-data-folder'),
+    latestRelease: () => ipcRenderer.invoke('app:latest-release'),
+    installUpdate: (url) => ipcRenderer.invoke('app:install-update', url),
   },
   netease: {
     search: (keyword, offset, limit) => ipcRenderer.invoke('netease:search', keyword, offset, limit),
