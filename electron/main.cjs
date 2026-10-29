@@ -1422,13 +1422,16 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('netease:home', async () => {
     const safe = (request, fallback) => Promise.resolve(request).catch(() => fallback);
-    const [personalized, top, newsong, resource, toplist] = await Promise.all([
-      safe(neteaseApi.personalized({ limit: 12,  }), null),
-      safe(neteaseApi.top_playlist({ cat: '全部', limit: 12,  }), null),
-      safe(neteaseApi.personalized_newsong({ limit: 12,  }), null),
-      safe(neteaseApi.recommend_resource({  }), null),
-      safe(neteaseApi.toplist({  }), null),
-    ]);
+    const wait = () => new Promise((resolve) => setTimeout(resolve, 220));
+    const personalized = await safe(neteaseApi.personalized({ limit: 12 }), null);
+    await wait();
+    const top = await safe(neteaseApi.top_playlist({ cat: '全部', limit: 12 }), null);
+    await wait();
+    const newsong = await safe(neteaseApi.personalized_newsong({ limit: 12 }), null);
+    await wait();
+    const resource = await safe(neteaseApi.recommend_resource({}), null);
+    await wait();
+    const toplist = await safe(neteaseApi.toplist({}), null);
 
     const recommended = (personalized?.body?.result || []).map(mapNeteasePlaylist);
     const resourcePlaylists = (resource?.body?.recommend || []).map(mapNeteasePlaylist);
@@ -1695,33 +1698,32 @@ app.whenReady().then(() => {
     const cloudId = Number(id);
     const keyword = String(name || '').trim();
     const safe = (request, fallback) => Promise.resolve(request).catch(() => fallback);
-    const [searchResult, simiResult, albumsResult] = await Promise.all([
-      keyword
-        ? safe(
-            neteaseApi.search({
-              keywords: keyword,
-              type: 1000,
-              limit: 20,
-              
-            }),
-            null,
-          )
-        : null,
-      safe(neteaseApi.simi_artist({ id: cloudId,  }), null),
-      safe(neteaseApi.artist_album({ id: cloudId, limit: 60, offset: 0,  }), null),
-    ]);
+    const wait = () => new Promise((resolve) => setTimeout(resolve, 180));
+    const searchResult = keyword
+      ? await safe(
+          neteaseApi.search({
+            keywords: keyword,
+            type: 1000,
+            limit: 20,
+          }),
+          null,
+        )
+      : null;
+    await wait();
+    const simiResult = await safe(neteaseApi.simi_artist({ id: cloudId }), null);
+    await wait();
+    const albumsResult = await safe(neteaseApi.artist_album({ id: cloudId, limit: 60, offset: 0 }), null);
 
     const candidates = (searchResult?.body?.result?.playlists || [])
       .map(mapNeteasePlaylist)
       .slice(0, 20);
-    const verified = await Promise.all(
-      candidates.map(async (playlist) => {
-        const detail = await safe(
-          neteaseApi.playlist_detail({ id: playlist.cloudId, s: 0,  }),
-          null,
-        );
-        const rawTracks = detail?.body?.playlist?.tracks || [];
-        if (!rawTracks.length) return { ...playlist, mosaic: [] };
+    const verified = [];
+    for (const playlist of candidates) {
+      const detail = await safe(neteaseApi.playlist_detail({ id: playlist.cloudId, s: 0 }), null);
+      const rawTracks = detail?.body?.playlist?.tracks || [];
+      if (!rawTracks.length) {
+        verified.push({ ...playlist, mosaic: [] });
+      } else {
         const containsArtist = rawTracks.some((track) => {
           const artists = track?.ar || track?.artists || [];
           return artists.some((artist) => {
@@ -1734,16 +1736,18 @@ app.whenReady().then(() => {
             );
           });
         });
-        if (!containsArtist) return null;
-        const mosaic = [];
-        for (const track of rawTracks) {
-          const url = coverWithSize(track?.al?.picUrl || track?.album?.picUrl, 200);
-          if (url && !mosaic.includes(url)) mosaic.push(url);
-          if (mosaic.length === 4) break;
+        if (containsArtist) {
+          const mosaic = [];
+          for (const track of rawTracks) {
+            const url = coverWithSize(track?.al?.picUrl || track?.album?.picUrl, 200);
+            if (url && !mosaic.includes(url)) mosaic.push(url);
+            if (mosaic.length === 4) break;
+          }
+          verified.push({ ...playlist, mosaic });
         }
-        return { ...playlist, mosaic };
-      }),
-    );
+      }
+      await wait();
+    }
     const playlists = verified.filter(Boolean).slice(0, 20);
     const similarArtists = (simiResult?.body?.artists || [])
       .map(mapNeteaseArtist)
