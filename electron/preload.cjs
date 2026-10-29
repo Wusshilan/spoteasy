@@ -99,6 +99,7 @@ contextBridge.exposeInMainWorld('spoteasy', {
     logout: () => ipcRenderer.invoke('netease:logout'),
     recommendPlaylists: () => ipcRenderer.invoke('netease:recommend-playlists'),
     home: () => ipcRenderer.invoke('netease:home'),
+    homeGenres: () => ipcRenderer.invoke('netease:home-genres'),
     searchPlaylists: (keyword, offset, limit) => ipcRenderer.invoke('netease:search-playlists', keyword, offset, limit),
     playlist: (id) => ipcRenderer.invoke('netease:playlist', id),
     playlistTracks: (id, offset, limit) => ipcRenderer.invoke('netease:playlist-tracks', id, offset, limit),

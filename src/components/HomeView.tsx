@@ -94,6 +94,7 @@ export function HomeView({ navigate }: HomeViewProps) {
   const [top, setTop] = useState<Playlist[]>([]);
   const [charts, setCharts] = useState<Playlist[]>([]);
   const [newSongs, setNewSongs] = useState<Track[]>([]);
+  const [genres, setGenres] = useState<Array<{ title: string; playlists: Playlist[] }>>([]);
   const [podcastEpisodes, setPodcastEpisodes] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
   const [dailyCover, setDailyCover] = useState<string | undefined>(undefined);
@@ -117,6 +118,19 @@ export function HomeView({ navigate }: HomeViewProps) {
       .finally(() => {
         if (alive) setLoading(false);
       });
+    return () => {
+      alive = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let alive = true;
+    window.spoteasy?.netease
+      ?.homeGenres()
+      .then((data) => {
+        if (alive) setGenres(data?.sections || []);
+      })
+      .catch(() => undefined);
     return () => {
       alive = false;
     };
@@ -424,6 +438,17 @@ export function HomeView({ navigate }: HomeViewProps) {
         onPlay={open}
         onShowAll={() => navigate({ name: 'section', id: 'top' })}
       />
+
+      {genres.map((section) => (
+        <CardRow
+          key={section.title}
+          title={section.title}
+          playlists={section.playlists}
+          onOpen={open}
+          onPlay={open}
+          onShowAll={() => navigate({ name: 'search', q: section.title })}
+        />
+      ))}
       <CardRow
         title="新歌速递"
         playlists={newSongCards}

@@ -16,19 +16,19 @@ const argv = process.argv.slice(1);
 protocol.registerSchemesAsPrivileged([
   {
     scheme: 'spoteasy-media',
-    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
+    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true },
   },
   {
     scheme: 'spoteasy-cloud',
-    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
+    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true },
   },
   {
     scheme: 'spoteasy-mv',
-    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
+    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true },
   },
   {
     scheme: 'spoteasy-img',
-    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
+    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true, corsEnabled: true },
   },
 ]);
 
@@ -776,6 +776,9 @@ function registerMediaProtocol() {
             'Content-Length': String(end - start + 1),
             'Content-Range': `bytes ${start}-${end}/${total}`,
             'Accept-Ranges': 'bytes',
+            'Access-Control-Allow-Origin': '*',
+            'Access-Control-Allow-Headers': 'Range',
+            'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges',
           },
         });
       }
@@ -786,6 +789,9 @@ function registerMediaProtocol() {
           'Content-Type': type,
           'Content-Length': String(total),
           'Accept-Ranges': 'bytes',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Range',
+          'Access-Control-Expose-Headers': 'Content-Range, Content-Length, Accept-Ranges',
         },
       });
     } catch (err) {
@@ -859,6 +865,9 @@ function registerCloudProtocol() {
         if (value) outHeaders.set(name, value);
       }
       outHeaders.set('Cache-Control', 'no-store');
+      outHeaders.set('Access-Control-Allow-Origin', '*');
+      outHeaders.set('Access-Control-Allow-Headers', 'Range');
+      outHeaders.set('Access-Control-Expose-Headers', 'Content-Range, Content-Length, Accept-Ranges');
       return new Response(upstream.body, { status: upstream.status, headers: outHeaders });
     } catch (err) {
       console.error('[cloud] stream failed', err?.message || err);
@@ -905,6 +914,9 @@ function registerMvProtocol() {
         if (value) outHeaders.set(name, value);
       }
       outHeaders.set('Cache-Control', 'no-store');
+      outHeaders.set('Access-Control-Allow-Origin', '*');
+      outHeaders.set('Access-Control-Allow-Headers', 'Range');
+      outHeaders.set('Access-Control-Expose-Headers', 'Content-Range, Content-Length, Accept-Ranges');
       return new Response(upstream.body, { status: upstream.status, headers: outHeaders });
     } catch (err) {
       console.error('[mv] stream failed', err?.message || err);
@@ -918,6 +930,19 @@ function registerMvProtocol() {
       if (!target || !/^https?:\/\/(?:[a-z0-9-]+\.)*music\.126\.net\//i.test(target)) {
         return new Response('bad image url', { status: 400 });
       }
+      const cacheDir = path.join(app.getPath('userData'), 'image-cache');
+      const cacheFile = path.join(cacheDir, `${crypto.createHash('sha1').update(target).digest('hex')}.img`);
+      try {
+        const cached = await fs.promises.readFile(cacheFile);
+        if (cached.length) {
+          return new Response(cached, {
+            status: 200,
+            headers: { 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=604800' },
+          });
+        }
+      } catch {
+        // miss
+      }
       const response = await fetch(target, {
         headers: {
           Referer: 'https://music.163.com/',
@@ -925,11 +950,17 @@ function registerMvProtocol() {
         },
       });
       if (!response.ok || !response.body) return new Response('', { status: response.status || 502 });
-      return new Response(response.body, {
+      const buffer = Buffer.from(await response.arrayBuffer());
+      if (buffer.length && buffer.length < 4 * 1024 * 1024) {
+        fs.promises.mkdir(cacheDir, { recursive: true })
+          .then(() => fs.promises.writeFile(cacheFile, buffer))
+          .catch(() => undefined);
+      }
+      return new Response(buffer, {
         status: 200,
         headers: {
           'Content-Type': response.headers.get('content-type') || 'image/jpeg',
-          'Cache-Control': 'public, max-age=86400',
+          'Cache-Control': 'public, max-age=604800',
         },
       });
     } catch {
@@ -1510,6 +1541,34 @@ app.whenReady().then(() => {
       return [];
     }
   });
+  let homeGenreCache = null;
+  ipcMain.handle('netease:home-genres', async () => {
+    if (homeGenreCache && Date.now() - homeGenreCache.at < 10 * 60 * 1000) {
+      return { sections: homeGenreCache.sections };
+    }
+    const categories = [
+      ['华语流行', '华语流行'],
+      ['电子', '电子'],
+      ['摇滚', '摇滚'],
+      ['民谣', '民谣'],
+      ['说唱', '说唱'],
+      ['轻音乐', '轻音乐'],
+    ];
+    const sections = [];
+    for (const [cat, title] of categories) {
+      try {
+        const result = await neteaseApi.top_playlist({ cat, limit: 8, offset: 0 });
+        const playlists = (result.body?.playlists || []).map(mapNeteasePlaylist);
+        if (playlists.length) sections.push({ title, playlists });
+      } catch {
+        // 单个分类失败不影响其他栏目。
+      }
+      await new Promise((resolve) => setTimeout(resolve, 180));
+    }
+    homeGenreCache = { at: Date.now(), sections };
+    return { sections };
+  });
+
   ipcMain.handle('netease:home', async () => {
     const safe = (request, fallback) => Promise.resolve(request).catch(() => fallback);
     const wait = () => new Promise((resolve) => setTimeout(resolve, 220));

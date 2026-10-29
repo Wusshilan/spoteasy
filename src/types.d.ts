@@ -338,6 +338,7 @@ declare global {
         logout(): Promise<NeteaseStatus>;
         recommendPlaylists(): Promise<Playlist[]>;
         home(): Promise<NeteaseHome>;
+        homeGenres(): Promise<{ sections: Array<{ title: string; playlists: Playlist[] }> }>;
         searchPlaylists(
           keyword: string,
           offset?: number,

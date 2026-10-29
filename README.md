@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.41"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
+  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.42"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
   <a href="https://github.com/Wusshilan/spoteasy"><img alt="Source" src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
 </p>
 
-**当前版本：0.1.41** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
+**当前版本：0.1.42** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
 
-[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.41) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
+[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.42) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
 
 ## 实机截图
 
@@ -72,8 +72,8 @@
 
 推荐下载 **Setup** 安装版：
 
-- [Spoteasy-Setup-0.1.41.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.41/Spoteasy-Setup-0.1.41.exe)
-- [Spoteasy-0.1.41-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.41/Spoteasy-0.1.41-portable.exe)
+- [Spoteasy-Setup-0.1.42.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.42/Spoteasy-Setup-0.1.42.exe)
+- [Spoteasy-0.1.42-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.42/Spoteasy-0.1.42-portable.exe)
 
 安装版支持应用内更新；portable 版本不能可靠地自我覆盖更新。
 
@@ -83,8 +83,8 @@
 - 仅当最新版本大于当前版本时，在主页图标前显示绿色「更新」胶囊
 - 用户点击胶囊后才会下载 `Spoteasy-Setup-*.exe` 并启动安装
 - 不点击不会下载、不会安装
-- 当前版本与最新 Release 同为 0.1.41 时不会显示胶囊
-- 升级实测需要先发布 **0.1.42**；安装包尚未签名，Windows 可能提示未知发布者
+- 当前版本与最新 Release 同为 0.1.42 时不会显示胶囊
+- 升级实测需要先发布 **0.1.43**；安装包尚未签名，Windows 可能提示未知发布者
 
 ## 开发
 
@@ -116,6 +116,19 @@ Windows 打包产物在 `release/`。
 - 云同步没有后端，当前不做账号云同步
 
 ## 更新日志
+
+## 0.1.42 均衡器、首页推荐栏目与设置优化
+
+- 新增 10 段均衡器，支持平直/流行/摇滚/爵士/古典/低音/人声/电子预设和自定义增益
+- 均衡器接入播放音频链，开机恢复，播放时自动恢复 AudioContext
+- 首页新增华语流行、电子、摇滚、民谣、说唱、轻音乐推荐栏目
+- 设置页移除偏好设置中重复的播放控制，播放相关设置集中到“播放”标签
+- 偏好设置中的播放增强改为均衡器入口，不再显示“未接入”的假状态
+- 搜索歌曲改走 cloudsearch，封面真实且互不重复
+- 搜索最近记录支持专辑、歌单、艺人、MV 跳转
+- 主内容区隐藏占位滚动条，艺人页头图贴齐右边缘
+- 全屏背景取色、沉浸 FLIP、公开模式关注艺人等沿用 0.1.41 优化
+- 版本号升至 0.1.42
 
 ## 0.1.41 搜索封面、滚动条与稳定性
 

@@ -131,6 +131,12 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
     const from = flipFromRef.current;
     if (!from) return;
     flipFromRef.current = null;
+    if (
+      document.documentElement.dataset.reduceMotion === '1' ||
+      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    ) {
+      return;
+    }
     const element = coverRef.current;
     if (!element) return;
     const to = element.getBoundingClientRect();

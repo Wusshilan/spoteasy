@@ -9586,3 +9586,57 @@ html[data-reduce-motion='1'] *::after {
   height: 0;
   display: none;
 }
+
+/* 0.1.42 10 段均衡器 */
+.settings-select {
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 4px;
+  color: var(--text);
+  background: #242424;
+  font: inherit;
+  font-size: 12px;
+}
+
+.eq-bands {
+  display: grid;
+  grid-template-columns: repeat(10, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 16px;
+  padding: 16px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.035);
+}
+
+.eq-bands.is-disabled {
+  opacity: 0.48;
+}
+
+.eq-band {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.eq-band input[type='range'] {
+  width: 100%;
+  height: 92px;
+  margin: 0;
+  accent-color: var(--accent);
+  writing-mode: vertical-lr;
+  direction: rtl;
+}
+
+.eq-value,
+.eq-freq {
+  color: var(--text-sub);
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+}
+
+.eq-value {
+  color: var(--text);
+}

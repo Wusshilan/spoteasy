@@ -6,6 +6,7 @@ import { useNetease } from '../state/netease';
 import { usePlayer } from '../state/player';
 import { useUi } from '../state/ui';
 import type { Repeat } from '../state/player';
+import { EQ_BANDS, EQ_PRESETS, loadEqState, saveEqState, type EqState } from '../audio/equalizer';
 
 type Tab = 'preferences' | 'local' | 'playback' | 'appearance' | 'about';
 
@@ -61,6 +62,7 @@ export function SettingsView() {
   });
   const [compactLibrary, setCompactLibrary] = useState(() => localStorage.getItem('spoteasy.compactLibrary') === '1');
   const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem('spoteasy.reduceMotion') === '1');
+  const [eq, setEq] = useState<EqState>(loadEqState);
   const [updateState, setUpdateState] = useState<{ checking?: boolean; version?: string; url?: string; assetUrl?: string; error?: string }>({});
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [stats, setStats] = useState<LibraryStats | null>(null);
@@ -151,6 +153,20 @@ export function SettingsView() {
   };
 
   const latest = updateState.version && updateState.version !== info?.version;
+
+  const applyEq = (next: EqState) => {
+    setEq(next);
+    saveEqState(next);
+  };
+
+  const choosePreset = (key: string) => {
+    if (key === 'custom') {
+      applyEq({ ...eq, preset: 'custom' });
+      return;
+    }
+    const preset = EQ_PRESETS.find((item) => item.key === key) ?? EQ_PRESETS[0];
+    applyEq({ ...eq, preset: preset.key, gains: [...preset.gains] });
+  };
 
   return (
     <div className="settings-page">
@@ -291,15 +307,18 @@ export function SettingsView() {
           <section className="settings-section">
             <h2>播放增强</h2>
             <div className="settings-row">
+              <div className="settings-label">均衡器</div>
+              <div className="settings-control settings-actions">
+                <span className="settings-value">{eq.enabled ? EQ_PRESETS.find((preset) => preset.key === eq.preset)?.label || '自定义' : '已关闭'}</span>
+                <button type="button" className="settings-btn" onClick={() => setTab('playback')}>打开均衡器</button>
+              </div>
+            </div>
+            <div className="settings-row">
               <div className="settings-label">淡入 / 淡出</div>
               <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
             </div>
             <div className="settings-row">
               <div className="settings-label">无缝播放 / 自动混音</div>
-              <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
-            </div>
-            <div className="settings-row">
-              <div className="settings-label">音量标准化 / 单声道</div>
               <div className="settings-control"><span className="settings-value">未接入音频处理</span></div>
             </div>
           </section>
@@ -320,45 +339,7 @@ export function SettingsView() {
             <p className="settings-help">也可以用 Ctrl + / Ctrl - 调整缩放。</p>
           </section>
 
-          <section className="settings-section">
-            <h2>播放</h2>
-            <div className="settings-row">
-              <div className="settings-label">音量</div>
-              <div className="settings-control">
-                <input className="settings-range" type="range" min="0" max="100" value={Math.round(player.volume * 100)} onChange={(event) => player.setVolume(Number(event.target.value) / 100)} aria-label="音量" />
-                <span className="settings-value">{Math.round(player.volume * 100)}%</span>
-              </div>
-            </div>
-            <div className="settings-row">
-              <div className="settings-label">随机播放</div>
-              <div className="settings-control"><Switch on={player.shuffle} onClick={player.toggleShuffle} label="随机播放" /></div>
-            </div>
-            <div className="settings-row">
-              <div className="settings-label">循环模式</div>
-              <div className="settings-control">
-                <div className="segmented">
-                  {repeatOptions.map(([value, label]) => (
-                    <button key={value} type="button" className={player.repeat === value ? 'is-active' : ''} onClick={() => player.setRepeat(value)}>{label}</button>
-                  ))}
-                </div>
-              </div>
-            </div>
-            <div className="settings-row">
-              <div className="settings-label">睡眠定时器</div>
-              <div className="settings-control settings-actions">
-                {ui.sleepAt ? (
-                  <>
-                    <span className="settings-value">已开启 · 约 {Math.max(0, Math.ceil((ui.sleepAt - Date.now()) / 60_000))} 分钟</span>
-                    <button type="button" className="settings-btn" onClick={() => ui.setSleepAt(null)}>取消</button>
-                  </>
-                ) : (
-                  [15, 30, 60].map((minutes) => (
-                    <button key={minutes} type="button" className="settings-btn" onClick={() => ui.setSleepAt(Date.now() + minutes * 60_000)}>{minutes} 分钟</button>
-                  ))
-                )}
-              </div>
-            </div>
-          </section>
+
 
           <section className="settings-section">
             <h2>存储</h2>
@@ -658,6 +639,58 @@ export function SettingsView() {
             <p className="settings-help">
               无损 / Hi-Res 需要会员；当前账号没有权限时会自动降级到可用音质。
             </p>
+          </section>
+
+          <section className="settings-section">
+            <h2>均衡器</h2>
+            <div className="settings-row">
+              <div className="settings-label">启用均衡器</div>
+              <div className="settings-control">
+                <Switch on={eq.enabled} onClick={() => applyEq({ ...eq, enabled: !eq.enabled })} label="启用均衡器" />
+              </div>
+            </div>
+            <div className="settings-row">
+              <div className="settings-label">预设</div>
+              <div className="settings-control settings-actions">
+                <select
+                  className="settings-select"
+                  value={eq.preset}
+                  onChange={(event) => choosePreset(event.target.value)}
+                  aria-label="均衡器预设"
+                >
+                  {EQ_PRESETS.map((preset) => (
+                    <option key={preset.key} value={preset.key}>{preset.label}</option>
+                  ))}
+                  <option value="custom">自定义</option>
+                </select>
+                <button type="button" className="settings-btn" onClick={() => choosePreset('flat')}>
+                  重置
+                </button>
+              </div>
+            </div>
+            <div className={`eq-bands ${eq.enabled ? '' : 'is-disabled'}`}>
+              {EQ_BANDS.map((frequency, index) => (
+                <label className="eq-band" key={frequency}>
+                  <span className="eq-value">{eq.gains[index] > 0 ? '+' : ''}{eq.gains[index]}</span>
+                  <input
+                    type="range"
+                    min="-12"
+                    max="12"
+                    step="1"
+                    value={eq.gains[index]}
+                    disabled={!eq.enabled}
+                    onChange={(event) => {
+                      const gains = [...eq.gains];
+                      gains[index] = Number(event.target.value);
+                      applyEq({ ...eq, preset: 'custom', gains });
+                    }}
+                    aria-label={`${frequency} Hz`}
+                  />
+                  <span className="eq-freq">{frequency >= 1000 ? `${frequency / 1000}k` : frequency}</span>
+                </label>
+              ))}
+            </div>
+            <p className="settings-help">10 段均衡器，作用于本机播放。预设和增益会保存在本机。</p>
           </section>
 
           <section className="settings-section">

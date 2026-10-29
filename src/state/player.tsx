@@ -12,6 +12,7 @@ import { getTrack, registerTracks, type Track } from '../data/mock';
 import { useLibrary } from './library';
 import { useNetease } from './netease';
 import { useUi } from './ui';
+import { useEqualizer } from '../audio/equalizer';
 
 type Repeat = 'off' | 'all' | 'one';
 
@@ -378,6 +379,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
   const { quality } = netease;
   const { toast } = useUi();
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEqualizer(audioRef);
   const loadedUrlRef = useRef<string | null>(null);
   const retriedTrackRef = useRef<string | null>(null);
 
@@ -627,7 +629,7 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
 
   return (
     <PlayerContext.Provider value={api}>
-      <audio ref={audioRef} preload="metadata" style={{ display: 'none' }} />
+      <audio ref={audioRef} preload="metadata" crossOrigin="anonymous" style={{ display: 'none' }} />
       {children}
     </PlayerContext.Provider>
   );
