@@ -1205,11 +1205,19 @@ app.whenReady().then(() => {
   ipcMain.handle('netease:search', async (_event, keyword, offset = 0, limit = 20) => {
     if (typeof keyword !== 'string' || !keyword.trim()) return { tracks: [], hasMore: false };
     try {
-      return await netease.search(
-        keyword.trim(),
-        Math.max(1, Number(limit) || 20),
-        Math.max(0, Number(offset) || 0),
-      );
+      const pageSize = Math.max(1, Number(limit) || 20);
+      const result = await neteaseApi.cloudsearch({
+        keywords: keyword.trim(),
+        type: 1,
+        limit: pageSize,
+        offset: Math.max(0, Number(offset) || 0),
+      });
+      const songs = result.body?.result?.songs || [];
+      return {
+        tracks: songs.map(netease.normalizeTrack),
+        hasMore: songs.length >= pageSize,
+        code: result.body?.code,
+      };
     } catch (err) {
       console.warn('[netease] search failed', err?.message || err);
       return { tracks: [], hasMore: false, error: String(err?.message || err) };
