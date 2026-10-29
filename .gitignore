@@ -1,0 +1,12 @@
+node_modules/
+dist/
+shots/
+.tmp/
+.pnpm-store/
+*.log
+.DS_Store
+release/
+0.1.1/
+*.exe
+*.blockmap
+

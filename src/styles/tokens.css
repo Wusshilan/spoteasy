@@ -1,0 +1,42 @@
+:root {
+  --bg: #000000;
+  --panel: #121212;
+  --panel-2: #181818;
+  --panel-3: #1f1f1f;
+  --elevated: #242424;
+  --hover: rgba(255, 255, 255, 0.07);
+  --hover-strong: rgba(255, 255, 255, 0.12);
+  --line: rgba(255, 255, 255, 0.1);
+  --text: #ffffff;
+  --subdued: #b3b3b3;
+  --muted: #6a6a6a;
+
+  --accent: #1ed760;
+  --accent-hover: #3be477;
+  --accent-contrast: #000000;
+
+  --radius: 8px;
+  --titlebar-h: 40px;
+  --player-h: 90px;
+  --sidebar-w: 280px;
+  --np-w: 340px;
+  --content-x: 24px;
+
+  /* Circular 的免费平替：Figtree 负责拉丁与数字，中文回落 MiSans */
+  --font: "Figtree Variable", "MiSans", "Segoe UI Variable Text", "Segoe UI", "Microsoft YaHei UI",
+    "PingFang SC", "Helvetica Neue", sans-serif;
+  --ease: cubic-bezier(0.3, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.33, 1, 0.68, 1);
+}
+
+:root[data-accent="red"] {
+  --accent: #ec4141;
+  --accent-hover: #f25c5c;
+  --accent-contrast: #ffffff;
+}
+
+:root[data-mode="black"] {
+  --panel: #0a0a0a;
+  --panel-2: #101010;
+  --panel-3: #161616;
+}
