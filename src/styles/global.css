@@ -9318,3 +9318,34 @@ html[data-reduce-motion='1'] *::after {
   border: 0;
   cursor: pointer;
 }
+
+/* 顶部更新胶囊：只有发现新版本时出现，点击才更新 */
+.update-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  padding: 0 13px;
+  margin-right: 8px;
+  border: 0;
+  border-radius: 999px;
+  color: #06120a;
+  background: #1ed760;
+  font-size: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: filter 0.15s, transform 0.15s;
+}
+
+.update-pill:hover {
+  filter: brightness(1.08);
+}
+
+.update-pill:active {
+  transform: scale(0.97);
+}
+
+.update-pill:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}

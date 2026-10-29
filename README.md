@@ -1,10 +1,91 @@
 # Spoteasy
 
-用 **Spotify 桌面端的细节**做的纯音乐播放器：界面是 Spotify 的三栏骨架，内容只保留音乐——本地音乐库、歌单、歌词、队列、播放。
+用 **Spotify 桌面端的细节** 做的纯音乐播放器：三栏布局、播放条、全屏播放、歌词、搜索、音乐库和设置页都按 Spotify 的交互重新实现，内容层接网易云音乐，本地音乐也能直接扫库播放。
 
-当前为 **0.1.32**：本地库保留为工具入口；首页/搜索/推荐/歌单/播客等内容来自网易云，生产 UI 已移除示例歌单。本地文件夹和网易云歌曲都走真实播放。
+![Spoteasy 首页](docs/screenshots/readme-home.png)
 
-> 网易云接入按“个人使用、用户自己登录、使用账号已有权限”实现。用的是非官方接口，不保证长期稳定；不能绕过 VIP/付费/DRM，不下载或二次分发音频。对外发布前需要授权与法务确认。
+**当前版本：0.1.32** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
+
+[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.32) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
+
+> 网易云接入按“个人使用、用户自己登录、使用账号已有权限”实现。使用的是非官方接口，不保证长期稳定；不能绕过 VIP / 付费 / DRM，不下载或二次分发音频。对外发布前需要授权与法务确认。
+
+## 实机截图
+
+| 首页 | 搜索 |
+| --- | --- |
+| ![首页](docs/screenshots/readme-home.png) | ![搜索](docs/screenshots/readme-search.png) |
+
+| 音乐库 | 设置 |
+| --- | --- |
+| ![音乐库](docs/screenshots/readme-library.png) | ![设置](docs/screenshots/readme-settings.png) |
+
+![全屏播放](docs/screenshots/readme-player.png)
+
+## 功能
+
+- **Spotify 三栏结构**：侧栏音乐库、中间页面、右侧正在播放；顶栏搜索与窗口控制
+- **播放**：队列、随机、循环、上一首/下一首、进度、音量、播放条和迷你播放器
+- **全屏播放**：封面主色背景、点击封面切换歌词、歌词点击 seek、5 秒无操作沉浸模式
+- **沉浸模式**：圆角卡片、全窗口黑场、上下展开/收回动画；点击封面以外退出
+- **搜索**：网易云歌曲、播客、专辑、歌单、艺人、MV，以及本地歌曲/专辑/艺人；关键词高亮
+- **音乐库**：本地文件夹扫描、歌单、播客、专辑、艺人；四种视图（仅标题和作者 / 列表 / 宽松 / 紧凑）并持久化
+- **播客**：关注列表、播客详情、节目列表、单集播放
+- **首页**：推荐、排行榜、每日推荐、你的节目/新单集；按歌单随机取色，日推封面读取
+- **设置**：偏好设置、音质、音量、随机/循环、睡眠定时、缩放、紧凑音乐库、减少动态效果、缓存清理
+- **更新**：识别到新 Release 时在主页图标前显示绿色「更新」胶囊，点击后才下载安装，不点击不更新
+- **本地优先**：本地音频走 HTMLAudio；网易云音频走稳定的 `spoteasy-cloud://` 协议，启动后重新解析播放地址
+
+## 安装
+
+推荐下载 **Setup** 安装版：
+
+- [Spoteasy-Setup-0.1.32.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.32/Spoteasy-Setup-0.1.32.exe)
+- [Spoteasy-0.1.32-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.32/Spoteasy-0.1.32-portable.exe)
+
+安装版支持应用内更新；portable 版本不能可靠地自我覆盖更新。
+
+## 自动更新
+
+- 启动、窗口重新聚焦、每 30 分钟检查 GitHub 最新 Release
+- 仅当最新版本大于当前版本时，在主页图标前显示绿色「更新」胶囊
+- 用户点击胶囊后才会下载 `Spoteasy-Setup-*.exe` 并启动安装
+- 不点击不会下载、不会安装
+- 当前版本与最新 Release 同为 0.1.32 时不会显示胶囊
+- 升级实测需要先发布 **0.1.33**；安装包尚未签名，Windows 可能提示未知发布者
+
+## 开发
+
+要求 Node.js 20+、pnpm。
+
+```bash
+pnpm install
+pnpm run dev
+pnpm run build
+pnpm run pack:win
+```
+
+Windows 打包产物在 `release/`。
+
+## 技术结构
+
+- `electron/main.cjs`：窗口、IPC、网易云 API、封面取色、更新检查/下载、媒体代理
+- `electron/preload.cjs`：`window.spoteasy` 安全桥
+- `src/state/`：播放器、网易云、本地库、UI 状态
+- `src/components/`：首页、搜索、音乐库、播客、播放条、全屏播放、设置
+- `src/styles/global.css`：Spotify 风格布局和动效
+
+## 已知限制
+
+- 网易云是非官方接口，接口变动可能导致搜索、歌单或播放失败
+- 不绕过 VIP / 付费 / DRM；没有版权的歌曲会失败
+- 真实账号写操作（收藏、关注、加入歌单、取消关注）仍需测试账号验证
+- 搜索还缺用户、节目单集、筛选和排序
+- 部分 Spotify 设置（Canvas、社交动态、淡入淡出、无缝、自动混音、音量标准化、单声道、均衡器）尚未接入，界面中标记为「未接入」
+- 安装包未签名；自动更新只覆盖 NSIS 安装版
+- 云同步没有后端，当前不做账号云同步
+
+## 更新日志
 
 ## 0.1.32 沉浸退出反向动画
 

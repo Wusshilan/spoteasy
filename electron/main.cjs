@@ -1933,9 +1933,12 @@ app.whenReady().then(() => {
       });
       if (!response.ok) throw new Error(`github ${response.status}`);
       const data = await response.json();
+      const assets = Array.isArray(data.assets) ? data.assets : [];
+      const setup = assets.find((asset) => /spoteasy-setup.*\.exe$/i.test(String(asset.name || '')));
       return {
         version: String(data.tag_name || '').replace(/^v/i, ''),
         url: data.html_url || 'https://github.com/Wusshilan/spoteasy/releases',
+        assetUrl: setup?.browser_download_url || '',
         publishedAt: data.published_at || '',
         notes: String(data.body || '').slice(0, 2000),
       };

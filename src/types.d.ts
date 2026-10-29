@@ -268,6 +268,7 @@ declare global {
         latestRelease(): Promise<{
           version?: string;
           url?: string;
+          assetUrl?: string;
           publishedAt?: string;
           notes?: string;
           error?: string;

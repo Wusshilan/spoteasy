@@ -61,7 +61,7 @@ export function SettingsView() {
   });
   const [compactLibrary, setCompactLibrary] = useState(() => localStorage.getItem('spoteasy.compactLibrary') === '1');
   const [reduceMotion, setReduceMotion] = useState(() => localStorage.getItem('spoteasy.reduceMotion') === '1');
-  const [updateState, setUpdateState] = useState<{ checking?: boolean; version?: string; url?: string; error?: string }>({});
+  const [updateState, setUpdateState] = useState<{ checking?: boolean; version?: string; url?: string; assetUrl?: string; error?: string }>({});
   const [info, setInfo] = useState<AppInfo | null>(null);
   const [stats, setStats] = useState<LibraryStats | null>(null);
   const [busy, setBusy] = useState(false);
@@ -146,7 +146,7 @@ export function SettingsView() {
       setUpdateState({ error: result?.error || '检查失败' });
       return;
     }
-    setUpdateState({ version: result.version, url: result.url });
+    setUpdateState({ version: result.version, url: result.url, assetUrl: result.assetUrl });
     if (result.version === info?.version) ui.toast('已经是最新版本');
   };
 
@@ -380,7 +380,7 @@ export function SettingsView() {
                     type="button"
                     className="settings-btn primary"
                     onClick={async () => {
-                      const result = await window.spoteasy?.app.installUpdate(updateState.url || '');
+                      const result = await window.spoteasy?.app.installUpdate(updateState.assetUrl || '');
                       if (!result?.ok) ui.toast(result?.error || '下载更新失败');
                     }}
                   >

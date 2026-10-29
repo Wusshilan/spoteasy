@@ -23,6 +23,8 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
   const [menuOpen, setMenuOpen] = useState(false);
   const [appMenuOpen, setAppMenuOpen] = useState(false);
   const [maximized, setMaximized] = useState(false);
+  const [update, setUpdate] = useState<{ version: string; assetUrl: string } | null>(null);
+  const [updating, setUpdating] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const appMenuRef = useRef<HTMLDivElement>(null);
   const displayName = netease.loggedIn ? netease.nickname : '音乐爱好者';
@@ -47,6 +49,49 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
     win.isMaximized().then(setMaximized);
     return win.onMaximized(setMaximized);
   }, [win]);
+
+  useEffect(() => {
+    let alive = true;
+    const api = window.spoteasy?.app;
+    if (!api?.latestRelease) return;
+    const isNewer = (latest: string, current: string) => {
+      const a = latest.split('.').map((part) => Number(part) || 0);
+      const b = current.split('.').map((part) => Number(part) || 0);
+      for (let index = 0; index < Math.max(a.length, b.length); index += 1) {
+        if ((a[index] || 0) > (b[index] || 0)) return true;
+        if ((a[index] || 0) < (b[index] || 0)) return false;
+      }
+      return false;
+    };
+    const check = () => {
+      Promise.all([api.info(), api.latestRelease()])
+        .then(([info, release]) => {
+          if (!alive || !release?.version || !release.assetUrl) return;
+          if (isNewer(release.version, info.version)) {
+            setUpdate({ version: release.version, assetUrl: release.assetUrl });
+          }
+        })
+        .catch(() => undefined);
+    };
+    check();
+    const timer = window.setInterval(check, 30 * 60_000);
+    window.addEventListener('focus', check);
+    return () => {
+      alive = false;
+      window.clearInterval(timer);
+      window.removeEventListener('focus', check);
+    };
+  }, []);
+
+  const installUpdate = async () => {
+    if (!update || updating) return;
+    setUpdating(true);
+    const result = await window.spoteasy?.app.installUpdate(update.assetUrl);
+    if (!result?.ok) {
+      setUpdating(false);
+      toast(result?.error || '更新失败');
+    }
+  };
 
   return (
     <header className="topbar" onDoubleClick={() => win?.toggleMaximize()}>
@@ -138,6 +183,17 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
       </div>
 
       <div className="topbar-center">
+        {update && (
+          <button
+            type="button"
+            className="update-pill"
+            disabled={updating}
+            onClick={() => void installUpdate()}
+            title={`更新到 ${update.version}`}
+          >
+            {updating ? '更新中…' : '更新'}
+          </button>
+        )}
         <button
           type="button"
           className={`home-btn ${homeActive ? 'is-active' : ''}`}
