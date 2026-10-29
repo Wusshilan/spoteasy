@@ -9349,3 +9349,19 @@ html[data-reduce-motion='1'] *::after {
   cursor: wait;
   opacity: 0.72;
 }
+
+/* 0.1.32 全库四视图 */
+.library-view-modes { display: flex; align-items: center; gap: 4px; }
+.library-view-toggle.is-active { color: #fff; background: rgba(255,255,255,0.12); }
+.library-grid.is-dense { grid-template-columns: repeat(auto-fill, minmax(116px, 1fr)); gap: 14px; }
+.library-grid.is-dense .library-card-art { margin-bottom: 7px; }
+.library-grid.is-dense .library-card-title { font-size: 13px; }
+.library-grid.is-dense .library-card-sub { font-size: 11px; }
+.library-grid.is-comfortable { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+.library-grid.is-titles { display: flex; flex-direction: column; gap: 0; }
+.library-grid.is-titles .library-card { flex-direction: row; align-items: center; gap: 8px; min-height: 42px; padding: 4px 8px; border-radius: 4px; }
+.library-grid.is-titles .library-card:hover { background: rgba(255,255,255,0.08); }
+.library-grid.is-titles .library-card-art { display: none; }
+.library-grid.is-titles .library-card-title { font-size: 14px; }
+.library-grid.is-titles .library-card-sub { margin-top: 0; font-size: 12px; }
+.library-grid.is-titles .library-card-play { display: none; }

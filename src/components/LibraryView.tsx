@@ -55,7 +55,11 @@ export function LibraryView({
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortMode>('recent');
-  const [view, setView] = useState<'grid' | 'list'>('grid');
+  const [view, setView] = useState<'titles' | 'list' | 'comfortable' | 'dense'>(() => {
+    const saved = localStorage.getItem('spoteasy.libraryView');
+    if (saved === 'titles' || saved === 'list' || saved === 'dense') return saved;
+    return 'comfortable';
+  });
   const [sortOpen, setSortOpen] = useState(false);
   const [createAnchor, setCreateAnchor] = useState<CreateAnchor | null>(null);
   const [createTrigger, setCreateTrigger] = useState<HTMLElement | null>(null);
@@ -90,6 +94,22 @@ export function LibraryView({
     closeCreate();
     onCreate(kind);
   };
+
+  useEffect(() => {
+    localStorage.setItem('spoteasy.libraryView', view);
+    window.dispatchEvent(new Event('spoteasy:library-view'));
+  }, [view]);
+
+  useEffect(() => {
+    const sync = () => {
+      const saved = localStorage.getItem('spoteasy.libraryView');
+      if (saved === 'titles' || saved === 'list' || saved === 'comfortable' || saved === 'dense') {
+        setView(saved);
+      }
+    };
+    window.addEventListener('spoteasy:library-view', sync);
+    return () => window.removeEventListener('spoteasy:library-view', sync);
+  }, []);
 
   const items = useMemo<LibraryItem[]>(() => {
     const liked: LibraryItem[] = [];
@@ -363,15 +383,25 @@ export function LibraryView({
             )}
           </div>
 
-          <button
-            type="button"
-            className="library-view-toggle"
-            onClick={() => setView((current) => (current === 'grid' ? 'list' : 'grid'))}
-            title={view === 'grid' ? '列表视图' : '网格视图'}
-            aria-label={view === 'grid' ? '列表视图' : '网格视图'}
-          >
-            <Icon name={view === 'grid' ? 'listView' : 'grid'} size={18} />
-          </button>
+          <div className="library-view-modes">
+            {([
+              ['titles', 'sort', '仅标题和作者'],
+              ['list', 'listView', '列表模式'],
+              ['comfortable', 'grid', '宽松视图'],
+              ['dense', 'panel', '紧凑视图'],
+            ] as const).map(([mode, icon, label]) => (
+              <button
+                key={mode}
+                type="button"
+                className={`library-view-toggle ${view === mode ? 'is-active' : ''}`}
+                onClick={() => setView(mode)}
+                title={label}
+                aria-label={label}
+              >
+                <Icon name={icon} size={18} />
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -398,7 +428,7 @@ export function LibraryView({
           )}
         </div>
       ) : (
-        <div className={`library-grid ${view === 'list' ? 'is-list' : ''}`}>
+        <div className={`library-grid is-${view}`}>
           {items.map((item) => (
             <div
               key={item.key}

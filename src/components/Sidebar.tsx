@@ -170,7 +170,19 @@ export function Sidebar({
 
   useEffect(() => {
     localStorage.setItem('spoteasy.libraryView', viewMode);
+    window.dispatchEvent(new Event('spoteasy:library-view'));
   }, [viewMode]);
+
+  useEffect(() => {
+    const sync = () => {
+      const saved = localStorage.getItem('spoteasy.libraryView');
+      if (saved === 'titles' || saved === 'list' || saved === 'comfortable' || saved === 'dense') {
+        setViewMode(saved);
+      }
+    };
+    window.addEventListener('spoteasy:library-view', sync);
+    return () => window.removeEventListener('spoteasy:library-view', sync);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem('spoteasy.librarySort', sort);
