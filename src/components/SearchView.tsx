@@ -308,6 +308,7 @@ export function SearchView({
     }
     if (row.kind === 'mv') {
       navigate({ name: 'mv', id: String(row.mv.cloudId) });
+      addRecentSearch({ key: row.mv.id, kind: 'mv', id: row.mv.id, title: row.mv.name, sub: `MV · ${row.mv.artist}`, coverUrl: row.mv.coverUrl, hue: row.mv.hue, variant: row.mv.variant });
       return;
     }
     navigate({ name: 'cloudArtist', id: String(row.artist.cloudId) });

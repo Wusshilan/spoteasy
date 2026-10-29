@@ -178,6 +178,19 @@ export function SearchBox({ route, navigate }: { route: Route; navigate: (route:
     } else if (item.kind === 'podcast') {
       const id = Number(item.id.replace('ne-podcast-', ''));
       if (Number.isFinite(id)) navigate({ name: 'podcast', id: String(id) });
+    } else if (item.kind === 'album') {
+      const cloud = item.id.match(/^ne-album-(\d+)$/);
+      if (cloud) navigate({ name: 'cloudAlbum', id: cloud[1] });
+      else navigate({ name: 'album', id: item.id });
+    } else if (item.kind === 'playlist') {
+      navigate({ name: 'playlist', id: item.id });
+    } else if (item.kind === 'artist') {
+      const cloud = item.id.match(/^ne-artist-(\d+)$/);
+      if (cloud) navigate({ name: 'cloudArtist', id: cloud[1] });
+      else navigate({ name: 'artist', id: item.id });
+    } else if (item.kind === 'mv') {
+      const id = item.id.replace(/^ne-mv-/, '');
+      navigate({ name: 'mv', id });
     }
     close();
   };
