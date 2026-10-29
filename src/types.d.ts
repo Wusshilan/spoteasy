@@ -304,6 +304,7 @@ declare global {
         status(): Promise<NeteaseStatus>;
         searchUsers(keyword: string, offset?: number, limit?: number): Promise<NeteaseUserSearchResult>;
         publicProfile(uid: number): Promise<NeteasePublicProfile>;
+        publicFollowedArtists(uid: number): Promise<{ artists: NeteaseArtist[]; error?: string }>;
         userPlaylists(): Promise<{ playlists: Playlist[]; error?: string }>;
         albumSublist(): Promise<{ albums: NeteaseAlbum[]; error?: string }>;
         artistSublist(): Promise<{ artists: NeteaseArtist[]; error?: string }>;

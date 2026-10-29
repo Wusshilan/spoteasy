@@ -26,6 +26,10 @@ protocol.registerSchemesAsPrivileged([
     scheme: 'spoteasy-mv',
     privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
   },
+  {
+    scheme: 'spoteasy-img',
+    privileges: { standard: true, secure: true, supportFetchAPI: true, stream: true },
+  },
 ]);
 
 function argValue(prefix) {
@@ -70,6 +74,7 @@ let latestMiniState = null;
 let neteaseCookie = '';
 let neteaseHadSession = false;
 let qrState = null;
+let publicFollowedArtistCache = new Map();
 
 function neteaseSessionFile() {
   return path.join(app.getPath('userData'), 'netease-session.bin');
@@ -905,6 +910,32 @@ function registerMvProtocol() {
       return new Response('stream failed', { status: 502 });
     }
   });
+  protocol.handle('spoteasy-img', async (request) => {
+    try {
+      const url = new URL(request.url);
+      const target = url.searchParams.get('url');
+      if (!target || !/^https?:\/\/(?:[a-z0-9-]+\.)*music\.126\.net\//i.test(target)) {
+        return new Response('bad image url', { status: 400 });
+      }
+      const response = await fetch(target, {
+        headers: {
+          Referer: 'https://music.163.com/',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/131.0 Safari/537.36',
+        },
+      });
+      if (!response.ok || !response.body) return new Response('', { status: response.status || 502 });
+      return new Response(response.body, {
+        status: 200,
+        headers: {
+          'Content-Type': response.headers.get('content-type') || 'image/jpeg',
+          'Cache-Control': 'public, max-age=86400',
+        },
+      });
+    } catch {
+      return new Response('', { status: 502 });
+    }
+  });
+
 }
 
 function createWindow() {
@@ -1191,6 +1222,54 @@ app.whenReady().then(() => {
     }
   });
   ipcMain.handle('netease:status', () => neteaseStatus());
+  ipcMain.handle('netease:public-followed-artists', async (_event, uid) => {
+    const publicUid = Number(uid);
+    if (!Number.isFinite(publicUid) || publicUid <= 0) return { artists: [] };
+    const cached = publicFollowedArtistCache.get(publicUid);
+    if (cached && Date.now() - cached.at < 10 * 60 * 1000) return { artists: cached.artists };
+    try {
+      const wait = (ms = 450) => new Promise((resolve) => setTimeout(resolve, ms));
+      const followed = await neteaseApi.user_follows({ uid: publicUid, limit: 50, offset: 0 });
+      const musicians = (followed.body?.follow || [])
+        .filter((user) => Number(user.userType) === 2)
+        .slice(0, 6);
+      const artists = [];
+      for (const user of musicians) {
+        try {
+          const detail = await neteaseApi.user_detail({ uid: Number(user.userId) });
+          const profile = detail.body?.profile || {};
+          const artistId = Number(profile.artistId);
+          if (Number.isFinite(artistId) && artistId > 0) {
+            artists.push({
+              id: `ne-artist-${artistId}`,
+              cloudId: artistId,
+              source: 'netease',
+              name: profile.artistName || profile.nickname || user.nickname || '未知歌手',
+              avatarUrl: coverWithSize(profile.avatarUrl || user.avatarUrl, 400),
+              albumSize: Number(profile.albumSize || 0),
+              musicSize: Number(profile.musicSize || 0),
+              followers: Number(profile.followeds || user.followeds || 0),
+              description: profile.detailDescription || profile.description || '',
+              hue: netease.hashHue(artistId),
+              variant: Math.abs(artistId) % 8,
+              followed: false,
+            });
+          }
+        } catch {
+          // 单个用户资料失败不阻塞其他关注艺人。
+        }
+        await wait();
+      }
+      if (artists.length) {
+        publicFollowedArtistCache.set(publicUid, { at: Date.now(), artists });
+      }
+      return { artists };
+    } catch (err) {
+      console.warn('[netease] public followed artists failed', err?.message || err);
+      return { artists: [], error: String(err?.message || err) };
+    }
+  });
+
   ipcMain.handle('netease:search-users', async (_event, keyword, offset = 0, limit = 20) => {
     const query = String(keyword || '').trim();
     if (!query) return { users: [], hasMore: false };

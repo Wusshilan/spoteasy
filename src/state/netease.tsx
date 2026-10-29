@@ -184,6 +184,12 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     } else {
       setLikedIds(new Set());
     }
+    try {
+      const followed = await api.publicFollowedArtists(result.profile.uid);
+      if (followed.artists?.length) setMyArtists(followed.artists);
+    } catch {
+      /* 关注艺人是公开接口的附加数据，失败不阻塞公开主页 */
+    }
   }, []);
 
   const choosePublicUser = useCallback(

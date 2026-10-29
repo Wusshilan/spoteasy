@@ -4,8 +4,14 @@ import { Avatar, Cover } from '../components/CoverArt';
 function thumb(url: string | undefined, size = 160) {
   if (!url) return undefined;
   const value = `param=${size}y${size}`;
-  if (/[?&]param=/.test(url)) return url.replace(/([?&])param=[^&]*/, `$1${value}`);
-  return url.includes('?') ? `${url}&${value}` : `${url}?${value}`;
+  const sized = /[?&]param=/.test(url)
+    ? url.replace(/([?&])param=[^&]*/, `$1${value}`)
+    : url.includes('?')
+      ? `${url}&${value}`
+      : `${url}?${value}`;
+  return /^https?:\/\/(?:[a-z0-9-]+\.)*music\.126\.net\//i.test(sized)
+    ? `spoteasy-img://image?url=${encodeURIComponent(sized)}`
+    : sized;
 }
 
 export type SearchRowKind = 'track' | 'album' | 'playlist' | 'artist' | 'podcast' | 'local' | 'mv';
