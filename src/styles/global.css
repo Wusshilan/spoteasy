@@ -9923,3 +9923,28 @@ html[data-reduce-motion='1'] *::after {
 .queue-title {
   font-weight: 400;
 }
+
+
+/* 0.1.47 音乐库添加按钮只保留加号 */
+.library-add {
+  background: transparent;
+}
+
+.library-add:hover,
+.library-add.is-open {
+  background: transparent;
+}
+
+.library-page-add {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.library-page-add:hover,
+.library-page-add.is-open {
+  background: transparent;
+}

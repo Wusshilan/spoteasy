@@ -37,6 +37,8 @@ export interface Playlist {
   name: string;
   desc: string;
   owner: string;
+  ownerId?: number;
+  ownerAvatarUrl?: string;
   hue: number;
   variant: number;
   tracks: string[];

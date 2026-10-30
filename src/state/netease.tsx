@@ -110,15 +110,17 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
 
   const refreshMyMusic = useCallback(async () => {
     const api = window.spoteasy?.netease;
-    if (publicUid) return;
     if (!api || !status.loggedIn) {
-      setMyPlaylists([]);
-      setMyAlbums([]);
-      setMyArtists([]);
-      setMyPodcasts([]);
-      setLikedIds(new Set());
+      if (!publicUid) {
+        setMyPlaylists([]);
+        setMyAlbums([]);
+        setMyArtists([]);
+        setMyPodcasts([]);
+        setLikedIds(new Set());
+      }
       return;
     }
+    if (publicUid && publicUid !== status.uid) return;
     setMyMusicLoading(true);
     try {
       const [playlistResult, likedResult, albumResult, artistResult, podcastResult] = await Promise.all([
@@ -138,16 +140,15 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     } finally {
       setMyMusicLoading(false);
     }
-  }, [publicUid, status.loggedIn]);
+  }, [publicUid, status.loggedIn, status.uid]);
 
   useEffect(() => {
     refreshStatus();
   }, [refreshStatus]);
 
   useEffect(() => {
-    if (publicUid) return;
     if (status.loggedIn) refreshMyMusic();
-    else {
+    else if (!publicUid) {
       setMyPlaylists([]);
       setMyAlbums([]);
       setMyArtists([]);
@@ -171,10 +172,12 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     const likedId = result.likedPlaylist?.cloudId;
     setLikedPlaylistId(likedId);
     localStorage.setItem(PUBLIC_UID_KEY, String(result.profile.uid));
+    let likedTracks: Track[] = [];
     if (likedId) {
       try {
         const liked = await api.playlistTracks(likedId, 0, 1000);
-        const ids = (liked.tracks || [])
+        likedTracks = liked.tracks || [];
+        const ids = likedTracks
           .map((track) => Number(track.cloudId))
           .filter((id) => Number.isFinite(id));
         setLikedIds(new Set(ids));
@@ -184,12 +187,54 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     } else {
       setLikedIds(new Set());
     }
+
+    // 公开收藏的专辑/艺人没有独立接口，从公开喜欢的歌曲反推，避免两个标签一直为空。
+    const albumMap = new Map<number, NeteaseAlbum>();
+    const artistMap = new Map<number, NeteaseArtist>();
+    for (const track of likedTracks) {
+      const albumId = Number(track.cloudAlbumId);
+      if (albumId && !albumMap.has(albumId)) {
+        albumMap.set(albumId, {
+          id: `ne-album-${albumId}`,
+          cloudId: albumId,
+          source: 'netease',
+          name: track.album || '未知专辑',
+          artist: track.artist,
+          artists: track.cloudArtistIds?.length
+            ? track.cloudArtistIds.map((artistId, index) => ({ id: artistId, name: index === 0 ? track.artist : '' }))
+            : [{ name: track.artist }],
+          artistId: track.cloudArtistIds?.[0],
+          coverUrl: track.coverUrl,
+          size: 0,
+          publishTime: 0,
+          hue: track.hue,
+          variant: track.variant,
+        });
+      }
+      const artistId = track.cloudArtistIds?.[0];
+      if (artistId && track.artist && !artistMap.has(artistId)) {
+        artistMap.set(artistId, {
+          id: `ne-artist-${artistId}`,
+          cloudId: artistId,
+          source: 'netease',
+          name: track.artist,
+          albumSize: 0,
+          musicSize: 0,
+          followers: 0,
+          hue: track.hue,
+          variant: track.variant,
+          followed: true,
+        });
+      }
+    }
+    setMyAlbums([...albumMap.values()].slice(0, 30));
     try {
       const followed = await api.publicFollowedArtists(result.profile.uid);
-      if (followed.artists?.length) setMyArtists(followed.artists);
+      for (const artist of followed.artists || []) artistMap.set(artist.cloudId, artist);
     } catch {
       /* 关注艺人是公开接口的附加数据，失败不阻塞公开主页 */
     }
+    setMyArtists([...artistMap.values()].slice(0, 30));
   }, []);
 
   const choosePublicUser = useCallback(
@@ -199,12 +244,13 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
       setMyMusicLoading(true);
       try {
         await loadPublicProfile(target);
+        if (status.loggedIn && target === status.uid) await refreshMyMusic();
         setProfileOpen(false);
       } finally {
         setMyMusicLoading(false);
       }
     },
-    [loadPublicProfile],
+    [loadPublicProfile, refreshMyMusic, status.loggedIn, status.uid],
   );
 
   const clearPublicUser = useCallback(() => {

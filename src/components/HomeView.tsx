@@ -106,36 +106,49 @@ export function HomeView({ navigate }: HomeViewProps) {
 
   useEffect(() => {
     let alive = true;
-    window.spoteasy?.netease
-      ?.home()
-      .then((data) => {
-        if (!alive) return;
-        setRecommended(data?.recommended || []);
-        setResource(data?.resource || []);
-        setTop(data?.top || []);
-        setCharts(data?.charts || []);
-        setNewSongs(data?.newSongs || []);
-        registerTracks(data?.newSongs || []);
-      })
-      .catch(() => undefined)
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
+    let lastHome = 0;
+    let lastGenres = 0;
+    const loadHome = () => {
+      lastHome = Date.now();
+      window.spoteasy?.netease
+        ?.home()
+        .then((data) => {
+          if (!alive) return;
+          setRecommended(data?.recommended || []);
+          setResource(data?.resource || []);
+          setTop(data?.top || []);
+          setCharts(data?.charts || []);
+          setNewSongs(data?.newSongs || []);
+          registerTracks(data?.newSongs || []);
+        })
+        .catch(() => undefined)
+        .finally(() => {
+          if (alive) setLoading(false);
+        });
     };
-  }, []);
-
-  useEffect(() => {
-    let alive = true;
-    window.spoteasy?.netease
-      ?.homeGenres()
-      .then((data) => {
-        if (alive) setGenres(data?.sections || []);
-      })
-      .catch(() => undefined);
+    const loadGenres = () => {
+      lastGenres = Date.now();
+      window.spoteasy?.netease
+        ?.homeGenres()
+        .then((data) => {
+          if (alive) setGenres(data?.sections || []);
+        })
+        .catch(() => undefined);
+    };
+    loadHome();
+    loadGenres();
+    const homeTimer = window.setInterval(loadHome, 10 * 60_000);
+    const genreTimer = window.setInterval(loadGenres, 30 * 60_000);
+    const onFocus = () => {
+      if (Date.now() - lastHome > 10 * 60_000) loadHome();
+      if (Date.now() - lastGenres > 30 * 60_000) loadGenres();
+    };
+    window.addEventListener('focus', onFocus);
     return () => {
       alive = false;
+      window.clearInterval(homeTimer);
+      window.clearInterval(genreTimer);
+      window.removeEventListener('focus', onFocus);
     };
   }, []);
 

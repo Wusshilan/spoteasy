@@ -314,7 +314,6 @@ export function LibraryView({
             onClick={(event) => toggleCreate(event.currentTarget)}
           >
             <Icon name={createAnchor ? 'xLg' : 'plus'} size={18} />
-            <span>{createAnchor ? '关闭' : '创建'}</span>
           </button>
           <button
             type="button"

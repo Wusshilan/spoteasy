@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.46"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
+  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.47"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
   <a href="https://github.com/Wusshilan/spoteasy"><img alt="Source" src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
 </p>
 
-**当前版本：0.1.46** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
+**当前版本：0.1.47** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
 
-[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.46) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
+[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.47) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
 
 ## 实机截图
 
@@ -72,8 +72,8 @@
 
 推荐下载 **Setup** 安装版：
 
-- [Spoteasy-Setup-0.1.46.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.46/Spoteasy-Setup-0.1.46.exe)
-- [Spoteasy-0.1.46-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.46/Spoteasy-0.1.46-portable.exe)
+- [Spoteasy-Setup-0.1.47.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.47/Spoteasy-Setup-0.1.47.exe)
+- [Spoteasy-0.1.47-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.47/Spoteasy-0.1.47-portable.exe)
 
 安装版支持应用内更新；portable 版本不能可靠地自我覆盖更新。
 
@@ -83,8 +83,8 @@
 - 仅当最新版本大于当前版本时，在主页图标前显示绿色「更新」胶囊
 - 用户点击胶囊后才会下载 `Spoteasy-Setup-*.exe` 并启动安装
 - 不点击不会下载、不会安装
-- 当前版本与最新 Release 同为 0.1.46 时不会显示胶囊
-- 升级实测需要先发布 **0.1.47**；安装包尚未签名，Windows 可能提示未知发布者
+- 当前版本与最新 Release 同为 0.1.47 时不会显示胶囊
+- 升级实测需要先发布 **0.1.48**；安装包尚未签名，Windows 可能提示未知发布者
 
 ## 开发
 
@@ -116,6 +116,17 @@ Windows 打包产物在 `release/`。
 - 云同步没有后端，当前不做账号云同步
 
 ## 更新日志
+
+## 0.1.47 更新、音乐库与公开数据修复
+
+- 首页推荐与分类歌单每 10/30 分钟自动刷新，窗口重新聚焦时按需刷新
+- 搜索列表专辑、歌单、MV 封面统一提升到 600px，减少模糊
+- 音乐库添加按钮去掉圆形/胶囊底板，只保留加号图标
+- 扫码登录后强制刷新自己的专辑、艺人、播客和喜欢列表，恢复“新增内容/收听更新”
+- 公开主页从公开喜欢的歌曲反推专辑和艺人，解决公开专辑、艺人一直为空
+- 歌单创作者头像接入真实头像并走本地图片代理
+- 修复更新下载使用 30 秒超时导致安装包只下载几 MB 就中断的问题；下载完成校验大小后再启动安装器
+- 版本号升至 0.1.47
 
 ## 0.1.46 标题字重与艺人信息修复
 

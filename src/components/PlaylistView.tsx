@@ -1,5 +1,5 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Cover } from './CoverArt';
+import { Avatar, Cover } from './CoverArt';
 import { Icon } from './Icons';
 import { TrackList } from './TrackList';
 import { formatCount, getTrack, playlistDuration, type Playlist } from '../data/mock';
@@ -152,7 +152,12 @@ export function PlaylistView({ playlist, navigate, local, loadMore, manage }: Pl
           <p className="hero-desc">{playlist.desc}</p>
           <div className="hero-meta">
             <span className="hero-owner">
-              <span className="owner-dot" />
+              <Avatar
+                hue={playlist.hue}
+                label={playlist.owner || '网易云音乐'}
+                size={22}
+                src={playlist.ownerAvatarUrl}
+              />
               {playlist.owner || '网易云音乐'}
             </span>
             <span>·</span>

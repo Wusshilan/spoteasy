@@ -156,6 +156,11 @@ function mapNeteasePlaylist(raw) {
       raw?.owner?.nickname ||
       raw?.user?.nickname ||
       '网易云音乐',
+    ownerId: Number(raw?.creator?.userId || raw?.creator?.id || raw?.owner?.userId || 0) || undefined,
+    ownerAvatarUrl: coverWithSize(
+      raw?.creator?.avatarUrl || raw?.creator?.avatar || raw?.owner?.avatarUrl || raw?.user?.avatarUrl,
+      200,
+    ),
     hue: netease.hashHue(id),
     variant: Math.abs(id) % 8,
     tracks: [],
@@ -312,7 +317,7 @@ function mapFriendEvent(raw) {
       id: Number(album.id),
       title: album.name || '专辑',
       subtitle: album.artist?.name || album.artist || '',
-      coverUrl: coverWithSize(album.picUrl, 240),
+      coverUrl: coverWithSize(album.picUrl, 600),
     };
   } else if (json?.playlist) {
     const playlist = json.playlist;
@@ -321,7 +326,7 @@ function mapFriendEvent(raw) {
       id: Number(playlist.id),
       title: playlist.name || '歌单',
       subtitle: playlist.creator?.nickname || '',
-      coverUrl: coverWithSize(playlist.coverImgUrl, 240),
+      coverUrl: coverWithSize(playlist.coverImgUrl, 600),
     };
   } else if (json?.mv) {
     const mv = json.mv;
@@ -330,7 +335,7 @@ function mapFriendEvent(raw) {
       id: Number(mv.id),
       title: mv.name || '视频',
       subtitle: mv.artistName || '',
-      coverUrl: coverWithSize(mv.cover, 240),
+      coverUrl: coverWithSize(mv.cover, 600),
     };
   }
 
@@ -2217,7 +2222,8 @@ app.whenReady().then(() => {
     try {
       const fileName = decodeURIComponent(target.split('/').pop() || 'Spoteasy-Setup.exe');
       const destination = path.join(app.getPath('temp'), fileName);
-      const response = await fetch(target, { headers: { 'User-Agent': 'Spoteasy' }, signal: AbortSignal.timeout(30000) });
+      // 下载 100MB+ 安装包不能沿用 API 请求的 30 秒超时，否则会只下到几 MB 就中断。
+      const response = await fetch(target, { headers: { 'User-Agent': 'Spoteasy' }, signal: AbortSignal.timeout(60 * 60 * 1000) });
       if (!response.ok || !response.body) throw new Error(`download ${response.status}`);
       const file = fs.createWriteStream(destination);
       await new Promise((resolve, reject) => {
@@ -2239,8 +2245,13 @@ app.whenReady().then(() => {
         };
         void pump();
       });
+      const stat = await fs.promises.stat(destination).catch(() => null);
+      const expected = Number(response.headers.get('content-length') || 0);
+      if (!stat || stat.size < 1024 * 1024) throw new Error('downloaded file is incomplete');
+      if (expected > 0 && stat.size !== expected) throw new Error(`downloaded size mismatch ${stat.size}/${expected}`);
       const child = spawn(destination, ['/S'], { detached: true, stdio: 'ignore' });
       child.unref();
+      await new Promise((resolve) => setTimeout(resolve, 800));
       app.quit();
       return { ok: true };
     } catch (err) {
