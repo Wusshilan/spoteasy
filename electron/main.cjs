@@ -150,15 +150,12 @@ function mapNeteasePlaylist(raw) {
     source: 'netease',
     name: raw?.name || '网易云歌单',
     desc: raw?.description || '',
-    owner: (() => {
-      const name =
-        raw?.creator?.nickname ||
-        raw?.creator?.name ||
-        raw?.owner?.nickname ||
-        raw?.user?.nickname ||
-        '未知创作者';
-      return /^(网易云音乐|网易云)$/i.test(String(name).trim()) ? '未知创作者' : name;
-    })(),
+    owner:
+      raw?.creator?.nickname ||
+      raw?.creator?.name ||
+      raw?.owner?.nickname ||
+      raw?.user?.nickname ||
+      '未知创作者',
     ownerId: Number(raw?.creator?.userId || raw?.creator?.id || raw?.owner?.userId || 0) || undefined,
     ownerAvatarUrl: coverWithSize(
       raw?.creator?.avatarUrl || raw?.creator?.avatar || raw?.owner?.avatarUrl || raw?.user?.avatarUrl,

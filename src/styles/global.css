@@ -9967,3 +9967,34 @@ html[data-reduce-motion='1'] *::after {
 .library-card-art.artist img {
   border-radius: 50% !important;
 }
+
+
+/* 0.1.47 圆形按钮和艺人头像必须使用 round corner-shape，不能是 squircle */
+:where(
+  .avatar, .avatar img, .icon-btn, .play-btn, .home-btn, .nav-arrow, .row-arrow,
+  .topbar-logo, .profile-btn, .update-pill, .chip, .search-pill, .segmented,
+  .settings-btn, .primary-btn, .library-card-play, .pb-check-circle, .bar-thumb,
+  .tip, .ctrl, .pb-icon, .sort-view-btn, .big-play, .round-btn, .action-icon,
+  .artist-thumb, .card-play, .quick-play
+) {
+  corner-shape: round !important;
+}
+
+.artist-cover,
+.artist-cover .cover,
+.artist-cover img,
+.hero-cover.is-artist,
+.hero-cover.is-artist .cover,
+.hero-cover.is-artist img,
+.discography-avatar,
+.discography-avatar .cover,
+.discography-avatar img,
+.artist-fan-cover,
+.artist-fan-cover .cover,
+.artist-fan-cover img,
+.library-card-art.artist,
+.library-card-art.artist .cover,
+.library-card-art.artist img {
+  border-radius: 50% !important;
+  corner-shape: round !important;
+}
