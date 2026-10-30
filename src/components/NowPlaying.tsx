@@ -23,6 +23,7 @@ export function NowPlaying({
   const [cloudLyrics, setCloudLyrics] = useState<LyricLine[] | null>(null);
   const [cloudLoading, setCloudLoading] = useState(false);
   const [followers, setFollowers] = useState<number | null>(null);
+  const [artistAvatar, setArtistAvatar] = useState<string | undefined>(undefined);
   const [lyricsExpanded, setLyricsExpanded] = useState(false);
   const [lyricsStart, setLyricsStart] = useState(0);
   const [followed, setFollowed] = useState<boolean | null>(null);
@@ -35,6 +36,7 @@ export function NowPlaying({
 
   useEffect(() => {
     setFollowers(null);
+    setArtistAvatar(undefined);
     setFollowed(null);
     setLyricsExpanded(false);
     setLyricsStart(0);
@@ -44,7 +46,10 @@ export function NowPlaying({
     window.spoteasy?.netease
       ?.artistStat(track.cloudArtistIds[0])
       .then((stat) => {
-        if (alive) setFollowers(stat?.followers ?? 0);
+        if (alive) {
+          setFollowers(stat?.followers ?? 0);
+          setArtistAvatar(stat?.avatarUrl);
+        }
       })
       .catch(() => {
         if (alive) setFollowers(null);
@@ -241,9 +246,6 @@ export function NowPlaying({
               <button type="button" className="np-artist" onClick={openArtist} title={track.artist}>
                 {track.artist}
               </button>
-              {followers != null && followers > 0 && (
-                <div className="np-followers">{formatCount(followers)} 位关注者</div>
-              )}
             </div>
             <div className="np-info-actions">
               <button type="button" className="icon-btn" onClick={share} aria-label="分享" title="分享">
@@ -307,9 +309,9 @@ export function NowPlaying({
 
         {track.artist && (
           <section className="np-section np-about">
-            <h3>关于艺术家</h3>
+            <h3>关于艺人</h3>
             <div className="np-about-row">
-              <Avatar hue={track.hue} label={track.artist} size={56} src={knownArtist?.avatarUrl} />
+              <Avatar hue={track.hue} label={track.artist} size={56} src={knownArtist?.avatarUrl || artistAvatar} />
               <div className="np-about-text">
                 <button type="button" className="np-about-name" onClick={openArtist}>
                   {track.artist}

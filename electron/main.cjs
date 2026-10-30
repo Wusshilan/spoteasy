@@ -1822,8 +1822,16 @@ app.whenReady().then(() => {
   });
   ipcMain.handle('netease:artist-stat', async (_event, id) => {
     try {
-      const result = await neteaseApi.artist_follow_count({ id: Number(id),  });
-      return { followers: Number(result.body?.data?.fansCnt || 0) };
+      const cloudId = Number(id);
+      const [result, detail] = await Promise.all([
+        neteaseApi.artist_follow_count({ id: cloudId,  }),
+        neteaseApi.artist_detail({ id: cloudId,  }).catch(() => null),
+      ]);
+      const raw = detail?.body?.data?.artist;
+      return {
+        followers: Number(result.body?.data?.fansCnt || 0),
+        avatarUrl: raw ? mapNeteaseArtist(raw).avatarUrl : undefined,
+      };
     } catch (err) {
       return { followers: 0, error: String(err?.message || err) };
     }

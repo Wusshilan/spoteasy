@@ -264,11 +264,14 @@ export function Avatar({
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => setImageFailed(false), [src]);
+  const resolvedSrc = src && /^https?:\/\//i.test(src) && /music\.126\.net/i.test(src)
+    ? `spoteasy-img://image?url=${encodeURIComponent(src)}`
+    : src;
 
-  if (src && !imageFailed) {
+  if (resolvedSrc && !imageFailed) {
     return (
       <div className="avatar" style={{ width: size, height: size, fontSize: size * 0.38 }}>
-        <img src={src} alt="" loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
+        <img src={resolvedSrc} alt="" loading="lazy" decoding="async" onError={() => setImageFailed(true)} />
       </div>
     );
   }

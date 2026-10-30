@@ -9840,3 +9840,86 @@ html[data-reduce-motion='1'] *::after {
 .np-immersive-blackout.is-waking {
   opacity: 0 !important;
 }
+
+/* 0.1.46 所有标题字重比标准重时降一级 */
+.hero-title,
+.discography-title {
+  font-weight: 800;
+}
+
+.home-greeting,
+.section-head h2,
+.home-foot h3,
+.artist-albums h2,
+.search-title,
+.genre-card span,
+.np-title,
+.together h3,
+.empty-state h2,
+.settings-title,
+.settings-section h2,
+.about-name,
+.artist-popular-head h2,
+.mv-meta h1,
+.section-page-head h1,
+.browse-page h1,
+.browse-card-title,
+.feed-page h1,
+.feed-empty h2,
+.artist-liked-copy strong,
+.artist-about-copy h3,
+.podcast-title,
+.podcast-section-head h2,
+.np-full-lyrics-head,
+.np-full-immersive-meta strong {
+  font-weight: 700;
+}
+
+.brand-name,
+.side-cloud-head,
+.library-head h2,
+.create-menu-title,
+.library-title,
+.profile-head-name,
+.quick-name,
+.card-title,
+.hero-eyebrow,
+.hero-owner,
+.artist-name,
+.np-head,
+.comments-head,
+.queue-head,
+.playlist-about h3,
+.edit-head h2,
+.mv-head,
+.library-page-head h1,
+.feed-title,
+.np-card-head,
+.np-section h3,
+.np-about-name,
+.pb-title,
+.queue-section-title,
+.mini-title,
+.np-empty-body h3,
+.friend-event-name,
+.artist-more-songs,
+.artist-playlist-name,
+.artist-fan-name,
+.sort-menu-title {
+  font-weight: 600;
+}
+
+.side-cloud-title,
+.profile-name,
+.collection-artist-link,
+.friend-media-title,
+.podcast-program-title,
+.folder-name {
+  font-weight: 500;
+}
+
+.row-title,
+.track-title,
+.queue-title {
+  font-weight: 400;
+}
