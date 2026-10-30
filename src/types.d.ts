@@ -362,6 +362,7 @@ declare global {
         ): Promise<{ albums: NeteaseAlbum[]; hasMore: boolean; error?: string }>;
         artist(id: number): Promise<NeteaseArtistDetail>;
         artistStat(id: number): Promise<{ followers: number; avatarUrl?: string; error?: string }>;
+        artistAvatar(id: number): Promise<{ avatarUrl?: string }>;
         artistAlbums(id: number, limit?: number, offset?: number): Promise<NeteaseArtistAlbumsResult>;
         artistMvs(id: number, limit?: number, offset?: number): Promise<{ mvs: NeteaseMv[]; error?: string }>;
         mv(id: number): Promise<NeteaseMvDetail>;

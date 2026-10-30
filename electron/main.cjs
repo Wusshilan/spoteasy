@@ -155,7 +155,7 @@ function mapNeteasePlaylist(raw) {
       raw?.creator?.name ||
       raw?.owner?.nickname ||
       raw?.user?.nickname ||
-      '网易云音乐',
+      '未知创作者',
     ownerId: Number(raw?.creator?.userId || raw?.creator?.id || raw?.owner?.userId || 0) || undefined,
     ownerAvatarUrl: coverWithSize(
       raw?.creator?.avatarUrl || raw?.creator?.avatar || raw?.owner?.avatarUrl || raw?.user?.avatarUrl,
@@ -1825,6 +1825,26 @@ app.whenReady().then(() => {
       return { artist: null, tracks: [], error: String(err?.message || err) };
     }
   });
+  const artistAvatarCache = new Map();
+  ipcMain.handle('netease:artist-avatar', async (_event, id) => {
+    const cloudId = Number(id);
+    if (!Number.isFinite(cloudId) || cloudId <= 0) return { avatarUrl: undefined };
+    const cached = artistAvatarCache.get(cloudId);
+    if (cached && Date.now() - cached.at < 10 * 60 * 1000) return { avatarUrl: cached.avatarUrl };
+    try {
+      const detail = await neteaseApi.artist_detail({ id: cloudId,  });
+      const raw = detail.body?.data?.artist;
+      const avatarUrl = raw
+        ? coverWithSize(raw.picUrl || raw.avatar || raw.img1v1Url, 400)
+        : undefined;
+      artistAvatarCache.set(cloudId, { at: Date.now(), avatarUrl });
+      if (artistAvatarCache.size > 120) artistAvatarCache.delete(artistAvatarCache.keys().next().value);
+      return { avatarUrl };
+    } catch {
+      return { avatarUrl: undefined };
+    }
+  });
+
   ipcMain.handle('netease:artist-stat', async (_event, id) => {
     try {
       const cloudId = Number(id);

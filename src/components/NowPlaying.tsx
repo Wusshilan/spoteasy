@@ -319,7 +319,7 @@ export function NowPlaying({
                 <span className="np-about-sub">
                   {followers != null && followers > 0
                     ? `${formatCount(followers)} 位关注者`
-                    : '来自网易云音乐的音乐人'}
+                    : '音乐人'}
                 </span>
               </div>
               {artistCloudId && (
@@ -345,7 +345,7 @@ export function NowPlaying({
           </div>
           <div className="np-kv">
             <span>来源</span>
-            <span>{isCloud ? '网易云音乐' : '本地音乐'}</span>
+            <span>{isCloud ? '在线' : '本地'}</span>
           </div>
         </section>
 

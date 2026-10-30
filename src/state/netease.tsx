@@ -108,6 +108,36 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const enrichArtistAvatars = useCallback((artists: NeteaseArtist[]) => {
+    const api = window.spoteasy?.netease;
+    if (!api) return;
+    const missing = artists.filter((artist) => !artist.avatarUrl && artist.cloudId).slice(0, 30);
+    if (!missing.length) return;
+    void (async () => {
+      let cursor = 0;
+      const worker = async () => {
+        while (cursor < missing.length) {
+          const artist = missing[cursor];
+          cursor += 1;
+          try {
+            const result = await api.artistAvatar(artist.cloudId);
+            if (result.avatarUrl) {
+              setMyArtists((prev) =>
+                prev.map((item) =>
+                  item.cloudId === artist.cloudId ? { ...item, avatarUrl: result.avatarUrl } : item,
+                ),
+              );
+            }
+          } catch {
+            // 单个艺人头像失败不影响其余列表
+          }
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+      };
+      await Promise.all(Array.from({ length: 4 }, worker));
+    })();
+  }, []);
+
   const refreshMyMusic = useCallback(async () => {
     const api = window.spoteasy?.netease;
     if (!api || !status.loggedIn) {
@@ -134,13 +164,14 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
       setLikedIds(new Set(likedResult.ids || []));
       setMyAlbums(albumResult.albums || []);
       setMyArtists(artistResult.artists || []);
+      enrichArtistAvatars(artistResult.artists || []);
       setMyPodcasts(podcastResult.podcasts || []);
     } catch {
       /* ignore */
     } finally {
       setMyMusicLoading(false);
     }
-  }, [publicUid, status.loggedIn, status.uid]);
+  }, [enrichArtistAvatars, publicUid, status.loggedIn, status.uid]);
 
   useEffect(() => {
     refreshStatus();
@@ -234,8 +265,10 @@ export function NeteaseProvider({ children }: { children: ReactNode }) {
     } catch {
       /* 关注艺人是公开接口的附加数据，失败不阻塞公开主页 */
     }
-    setMyArtists([...artistMap.values()].slice(0, 30));
-  }, []);
+    const publicArtists = [...artistMap.values()].slice(0, 30);
+    setMyArtists(publicArtists);
+    enrichArtistAvatars(publicArtists);
+  }, [enrichArtistAvatars]);
 
   const choosePublicUser = useCallback(
     async (uid: number) => {

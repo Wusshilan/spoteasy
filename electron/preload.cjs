@@ -107,6 +107,7 @@ contextBridge.exposeInMainWorld('spoteasy', {
     searchAlbums: (keyword, offset, limit) => ipcRenderer.invoke('netease:search-albums', keyword, offset, limit),
     artist: (id) => ipcRenderer.invoke('netease:artist', id),
     artistStat: (id) => ipcRenderer.invoke('netease:artist-stat', id),
+    artistAvatar: (id) => ipcRenderer.invoke('netease:artist-avatar', id),
     artistAlbums: (id, limit, offset) => ipcRenderer.invoke('netease:artist-albums', id, limit, offset),
     artistMvs: (id, limit, offset) => ipcRenderer.invoke('netease:artist-mvs', id, limit, offset),
     mv: (id) => ipcRenderer.invoke('netease:mv', id),

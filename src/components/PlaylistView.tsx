@@ -154,11 +154,11 @@ export function PlaylistView({ playlist, navigate, local, loadMore, manage }: Pl
             <span className="hero-owner">
               <Avatar
                 hue={playlist.hue}
-                label={playlist.owner || '网易云音乐'}
+                label={playlist.owner || '未知创作者'}
                 size={22}
                 src={playlist.ownerAvatarUrl}
               />
-              {playlist.owner || '网易云音乐'}
+              {playlist.owner || '未知创作者'}
             </span>
             <span>·</span>
             <span>{trackCount} 首歌</span>

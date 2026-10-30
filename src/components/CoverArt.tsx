@@ -1,6 +1,12 @@
 import { useEffect, useId, useState } from 'react';
 import { Icon } from './Icons';
 
+function proxyImage(src?: string) {
+  return src && /^https?:\/\//i.test(src) && /music\.126\.net/i.test(src)
+    ? `spoteasy-img://image?url=${encodeURIComponent(src)}`
+    : src;
+}
+
 interface CoverProps {
   hue: number;
   variant: number;
@@ -22,6 +28,7 @@ export function Cover({ hue, variant, label = '', className, title, heart = fals
   const c2 = `hsl(${(h + 38) % 360} 72% 42%)`;
   const c3 = `hsl(${(h + 320) % 360} 62% 30%)`;
   const glyph = (label || title || '·').trim().charAt(0) || '·';
+  const resolvedSrc = proxyImage(src);
 
   const defs = (
     <defs>
@@ -227,7 +234,7 @@ export function Cover({ hue, variant, label = '', className, title, heart = fals
       {src && !imageFailed ? (
         <img
           className="cover-img"
-          src={src}
+          src={resolvedSrc}
           alt=""
           draggable={false}
           loading="lazy"
@@ -264,9 +271,7 @@ export function Avatar({
   const uid = useId().replace(/[^a-zA-Z0-9]/g, '');
   const [imageFailed, setImageFailed] = useState(false);
   useEffect(() => setImageFailed(false), [src]);
-  const resolvedSrc = src && /^https?:\/\//i.test(src) && /music\.126\.net/i.test(src)
-    ? `spoteasy-img://image?url=${encodeURIComponent(src)}`
-    : src;
+  const resolvedSrc = proxyImage(src);
 
   if (resolvedSrc && !imageFailed) {
     return (
