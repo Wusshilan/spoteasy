@@ -970,6 +970,42 @@ function registerMvProtocol() {
 
 }
 
+async function trimImageCache() {
+  const dir = path.join(app.getPath('userData'), 'image-cache');
+  let names = [];
+  try {
+    names = await fs.promises.readdir(dir);
+  } catch {
+    return;
+  }
+  const entries = [];
+  let total = 0;
+  for (const name of names) {
+    try {
+      const file = path.join(dir, name);
+      const stat = await fs.promises.stat(file);
+      if (!stat.isFile()) continue;
+      entries.push({ file, size: stat.size, at: stat.mtimeMs });
+      total += stat.size;
+    } catch {
+      // ignore broken cache entries
+    }
+  }
+  if (total <= 200 * 1024 * 1024 && entries.length <= 400) return;
+  entries.sort((a, b) => a.at - b.at);
+  let count = entries.length;
+  for (const entry of entries) {
+    if (total <= 150 * 1024 * 1024 && count <= 300) break;
+    try {
+      await fs.promises.unlink(entry.file);
+      total -= entry.size;
+      count -= 1;
+    } catch {
+      // ignore
+    }
+  }
+}
+
 function createWindow() {
   const [w, h] = SHOT_SIZE.split('x').map((n) => parseInt(n, 10));
   const width = Number.isFinite(w) ? w : 1440;
@@ -1843,9 +1879,15 @@ app.whenReady().then(() => {
     };
   });
 
+  const artistRelatedCache = new Map();
   ipcMain.handle('netease:artist-related', async (_event, id, name) => {
     const cloudId = Number(id);
     const keyword = String(name || '').trim();
+    const cacheKey = `${cloudId}:${keyword}`;
+    const cachedRelated = artistRelatedCache.get(cacheKey);
+    if (cachedRelated && Date.now() - cachedRelated.at < 10 * 60 * 1000) {
+      return cachedRelated.value;
+    }
     const safe = (request, fallback) => Promise.resolve(request).catch(() => fallback);
     const wait = () => new Promise((resolve) => setTimeout(resolve, 180));
     const searchResult = keyword
@@ -1865,7 +1907,7 @@ app.whenReady().then(() => {
 
     const candidates = (searchResult?.body?.result?.playlists || [])
       .map(mapNeteasePlaylist)
-      .slice(0, 20);
+      .slice(0, 12);
     const verified = [];
     for (const playlist of candidates) {
       const detail = await safe(neteaseApi.playlist_detail({ id: playlist.cloudId, s: 0 }), null);
@@ -1897,7 +1939,7 @@ app.whenReady().then(() => {
       }
       await wait();
     }
-    const playlists = verified.filter(Boolean).slice(0, 20);
+    const playlists = verified.filter(Boolean).slice(0, 12);
     const similarArtists = (simiResult?.body?.artists || [])
       .map(mapNeteaseArtist)
       .slice(0, 20);
@@ -1910,7 +1952,12 @@ app.whenReady().then(() => {
       )
       .slice(0, 20);
 
-    return { playlists, similarArtists, appearsOn };
+    const value = { playlists, similarArtists, appearsOn };
+    artistRelatedCache.set(cacheKey, { at: Date.now(), value });
+    if (artistRelatedCache.size > 40) {
+      artistRelatedCache.delete(artistRelatedCache.keys().next().value);
+    }
+    return value;
   });
 
   ipcMain.handle('netease:album', async (_event, id) => {
@@ -2228,6 +2275,7 @@ app.whenReady().then(() => {
     win.focus();
   });
 
+  trimImageCache().catch(() => undefined);
   createWindow();
   syncWatchers();
 

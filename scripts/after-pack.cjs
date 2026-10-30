@@ -1,4 +1,5 @@
 const { execFileSync } = require('node:child_process');
+const fs = require('node:fs');
 const path = require('node:path');
 
 /**
@@ -29,5 +30,12 @@ exports.default = async function afterPack(context) {
     ],
     { stdio: 'inherit' },
   );
+  const localesDir = path.join(context.appOutDir, 'locales');
+  if (fs.existsSync(localesDir)) {
+    const keep = new Set(['zh-CN.pak', 'zh-TW.pak', 'en-US.pak']);
+    for (const name of fs.readdirSync(localesDir)) {
+      if (!keep.has(name)) fs.rmSync(path.join(localesDir, name), { force: true });
+    }
+  }
   console.log(`[afterPack] rcedit ${path.basename(exe)} ${version}`);
 };

@@ -1,6 +1,6 @@
 {
   "name": "spoteasy",
-  "version": "0.1.44",
+  "version": "0.1.45",
   "private": true,
   "description": "Spoteasy",
   "author": "Spoteasy",
@@ -28,6 +28,8 @@
       "package.json"
     ],
     "asar": true,
+    "compression": "maximum",
+    "electronLanguages": ["zh-CN", "zh-TW", "en-US"],
     "npmRebuild": false,
     "afterPack": "scripts/after-pack.cjs",
     "electronDist": "node_modules/electron/dist",
