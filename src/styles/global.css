@@ -9948,3 +9948,22 @@ html[data-reduce-motion='1'] *::after {
 .library-page-add.is-open {
   background: transparent;
 }
+
+/* 0.1.47 艺人头像统一圆形 */
+.artist-cover,
+.artist-cover .cover,
+.artist-cover img,
+.hero-cover.is-artist,
+.hero-cover.is-artist .cover,
+.hero-cover.is-artist img,
+.discography-avatar,
+.discography-avatar .cover,
+.discography-avatar img,
+.artist-fan-cover,
+.artist-fan-cover .cover,
+.artist-fan-cover img,
+.library-card-art.artist,
+.library-card-art.artist .cover,
+.library-card-art.artist img {
+  border-radius: 50% !important;
+}
