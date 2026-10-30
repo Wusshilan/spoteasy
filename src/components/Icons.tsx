@@ -125,29 +125,29 @@ const stroke: Record<string, ReactNode> = {
   chevronRight: <path d="m9 6 6 6-6 6" />,
   prev: (
     <>
-      <path d="M19 5.1v13.8L9 12z" fill="currentColor" stroke="none" />
-      <rect x="5" y="5" width="2.4" height="14" rx="1" fill="currentColor" stroke="none" />
+      <path d="M19 5.2v13.6L8.6 12z" fill="currentColor" stroke="none" />
+      <rect x="4.6" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   next: (
     <>
-      <path d="M5 5.1v13.8L15 12z" fill="currentColor" stroke="none" />
-      <rect x="16.6" y="5" width="2.4" height="14" rx="1" fill="currentColor" stroke="none" />
+      <path d="M5 5.2v13.6L15.4 12z" fill="currentColor" stroke="none" />
+      <rect x="17.2" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   shuffle: (
     <>
-      <path d="M2 18h1.4c1.3 0 2.5-.6 3.3-1.7l6.1-8.6c.8-1.1 2-1.7 3.3-1.7H22" />
-      <path d="m18 2 4 4-4 4" />
-      <path d="M2 6h1.9c1.5 0 2.9.9 3.8 2.2" />
-      <path d="M22 18h-5.9c-1.3 0-2.5-.6-3.3-1.7l-.8-1.1" />
-      <path d="m18 14 4 4-4 4" />
+      <path d="M2.4 7.2h2.1c2 0 3.3 1 4.5 2.7l4.2 6.1c.8 1.2 1.9 1.8 3.4 1.8h3" />
+      <path d="m17.4 15.2 3.2 2.6-3.2 2.8" />
+      <path d="M2.4 18.2h2.1c1.9 0 3.2-.8 4.4-2.4l.6-.9" />
+      <path d="M21.8 5.4h-5.4c-1.5 0-2.6.6-3.4 1.8l-.7 1" />
+      <path d="m17.4 2.6 3.2 2.8-3.2 2.6" />
     </>
   ),
   repeat: (
     <>
-      <path d="M4.6 8.5A3.5 3.5 0 0 1 8.1 5h7.8a3.5 3.5 0 0 1 3.5 3.5v5a3.5 3.5 0 0 1-3.5 3.5H10" />
-      <path d="m7.6 13.8-3.1 3.1 3.1 3.1" />
+      <path d="M5 9.1V8.6A3.6 3.6 0 0 1 8.6 5h7a3.6 3.6 0 0 1 3.6 3.6v4.8a3.6 3.6 0 0 1-3.6 3.6h-5.8" />
+      <path d="m7.4 13.8-2.9 3.2 2.9 2.9" />
     </>
   ),
   heart: (
@@ -156,7 +156,8 @@ const stroke: Record<string, ReactNode> = {
   volume: (
     <>
       <path d="M11.2 5 6.6 9H3v6h3.6L11.2 19z" fill="currentColor" stroke="none" />
-      <path d="M15.3 8.6a5 5 0 0 1 0 6.8" />
+      <path d="M14.8 8.8a5 5 0 0 1 0 6.4" />
+      <path d="M17.6 6.4a9 9 0 0 1 0 11.2" />
     </>
   ),
   volumeLow: (
@@ -184,12 +185,19 @@ const stroke: Record<string, ReactNode> = {
       <rect x="17.2" y="9.5" width="4.8" height="10.5" rx="1.3" />
     </>
   ),
-  fullscreen: <path d="M8 3H3v5M16 3h5v5M8 21H3v-5M21 16v5h-5" />,
-  exitFullscreen: <path d="M3 8h5V3M21 8h-5V3M3 16h5v5M21 16h-5v5" />,
+  fullscreen: <path d="M8.2 3.2H3.2v5M15.8 3.2h5v5M8.2 20.8H3.2v-5M20.8 15.8v5h-5" />,
+  exitFullscreen: (
+    <>
+      <path d="M20 4 14.5 9.5" />
+      <path d="M14.5 4v5.5H20" />
+      <path d="M4 20l5.5-5.5" />
+      <path d="M9.5 20v-5.5H4" />
+    </>
+  ),
   pip: (
     <>
-      <rect x="2.5" y="4.5" width="19" height="15" rx="2" />
-      <rect x="12" y="11" width="8" height="7" rx="1.2" fill="currentColor" stroke="none" />
+      <rect x="2.6" y="4.4" width="18.8" height="15.2" rx="2" />
+      <rect x="12.3" y="11.2" width="7.5" height="6.6" rx="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   lyrics: (

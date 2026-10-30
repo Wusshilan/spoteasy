@@ -9640,3 +9640,23 @@ html[data-reduce-motion='1'] *::after {
 .eq-value {
   color: var(--text);
 }
+
+
+/* 0.1.42 播放条图标对齐参考图 */
+.pb-controls .icon-btn svg,
+.pb-right .icon-btn svg {
+  stroke-width: 2;
+}
+
+.pb-right {
+  gap: 8px;
+}
+
+.pb-controls {
+  gap: 14px;
+}
+
+.np-full-shrink svg,
+.library-page-expand svg {
+  stroke-width: 2.2;
+}

@@ -92,19 +92,19 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
         <div className="pb-empty-center">
           <div className="pb-controls">
             <button type="button" className="icon-btn ctrl" disabled aria-label="随机播放">
-              <Icon name="shuffle" size={19} />
+              <Icon name="shuffle" size={22} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="上一首">
-              <Icon name="prev" size={17} />
+              <Icon name="prev" size={18} />
             </button>
             <button type="button" className="play-btn" disabled aria-label="播放">
-              <Icon name="play" size={15} />
+              <Icon name="play" size={14} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="下一首">
-              <Icon name="next" size={17} />
+              <Icon name="next" size={18} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="循环播放">
-              <Icon name="repeat" size={19} />
+              <Icon name="repeat" size={22} />
             </button>
           </div>
           <div className="pb-progress pb-empty-progress">
@@ -119,17 +119,17 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
         </div>
         <div className="pb-empty-right">
           <button type="button" className="icon-btn" disabled aria-label="歌词">
-            <Icon name="mic" size={17} />
+            <Icon name="mic" size={20} />
           </button>
           <button type="button" className="icon-btn" disabled aria-label="播放队列">
-            <Icon name="queue" size={17} />
+            <Icon name="queue" size={20} />
           </button>
           <button type="button" className="icon-btn" disabled aria-label="连接设备">
-            <Icon name="connect" size={17} />
+            <Icon name="connect" size={20} />
           </button>
           <div className="pb-volume">
             <button type="button" className="icon-btn" disabled aria-label="音量">
-              <Icon name={volumeIcon} size={17} />
+              <Icon name={volumeIcon} size={20} />
             </button>
             <div className="bar volume is-disabled" role="slider" aria-label="音量" aria-valuenow={0} aria-valuemax={100}>
               <div className="bar-bg" />
@@ -138,10 +138,10 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             </div>
           </div>
           <button type="button" className="icon-btn" disabled aria-label="迷你播放器">
-            <Icon name="pip" size={17} />
+            <Icon name="pip" size={20} />
           </button>
           <button type="button" className="icon-btn" disabled aria-label="全屏">
-            <Icon name="fullscreen" size={17} />
+            <Icon name="fullscreen" size={20} />
           </button>
         </div>
       </div>
@@ -238,11 +238,11 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             aria-label="随机播放"
             data-tip={player.shuffle ? '关闭随机播放' : '随机播放'}
           >
-            <Icon name="shuffle" size={19} />
+            <Icon name="shuffle" size={22} />
             {player.shuffle && <span className="ctrl-dot" />}
           </button>
           <button type="button" className="icon-btn ctrl tip" onClick={player.prev} aria-label="上一首" data-tip="上一首">
-            <Icon name="prev" size={17} />
+            <Icon name="prev" size={18} />
           </button>
           <button
             type="button"
@@ -251,10 +251,10 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             aria-label={player.playing ? '暂停' : '播放'}
             data-tip={player.playing ? '暂停' : '播放'}
           >
-            <Icon name={player.playing ? 'pause' : 'play'} size={15} />
+            <Icon name={player.playing ? 'pause' : 'play'} size={14} />
           </button>
           <button type="button" className="icon-btn ctrl tip" onClick={player.next} aria-label="下一首" data-tip="下一首">
-            <Icon name="next" size={17} />
+            <Icon name="next" size={18} />
           </button>
           <button
             type="button"
@@ -263,7 +263,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             aria-label="循环播放"
             data-tip={player.repeat === 'one' ? '单曲循环' : player.repeat === 'all' ? '列表循环' : '循环播放'}
           >
-            <Icon name={player.repeat === 'one' ? 'repeatOne' : 'repeat'} size={19} />
+            <Icon name={player.repeat === 'one' ? 'repeatOne' : 'repeat'} size={20} />
             {player.repeat !== 'off' && <span className="ctrl-dot" />}
           </button>
         </div>
@@ -306,7 +306,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
           aria-label="歌词"
           data-tip="歌词"
         >
-          <Icon name="mic" size={17} />
+          <Icon name="mic" size={20} />
         </button>
         <button
           type="button"
@@ -315,7 +315,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
           aria-label="播放队列"
           data-tip="播放队列"
         >
-          <Icon name="queue" size={17} />
+          <Icon name="queue" size={20} />
         </button>
         <div className="pb-connect" ref={deviceRef}>
           <button
@@ -325,7 +325,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             aria-label="连接设备"
             data-tip="连接设备"
           >
-            <Icon name="connect" size={17} />
+            <Icon name="connect" size={20} />
           </button>
           {deviceOpen && (
             <div className="connect-popover" role="dialog" aria-label="连接设备">
@@ -358,7 +358,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             aria-label="音量"
             data-tip={player.volume > 0 ? '静音' : '取消静音'}
           >
-            <Icon name={volumeIcon} size={17} />
+            <Icon name={volumeIcon} size={20} />
           </button>
           <div
             className="bar volume"
@@ -381,7 +381,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
           aria-label="迷你播放器"
           data-tip="迷你播放器"
         >
-          <Icon name="pip" size={17} />
+          <Icon name="pip" size={20} />
         </button>
         <button
           type="button"
@@ -393,7 +393,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
           aria-label={npFull ? '退出全屏' : '全屏模式'}
           data-tip={npFull ? '退出全屏' : '全屏模式'}
         >
-          <Icon name={npFull ? 'exitFullscreen' : 'fullscreen'} size={17} />
+          <Icon name={npFull ? 'exitFullscreen' : 'fullscreen'} size={20} />
         </button>
       </div>
     </footer>

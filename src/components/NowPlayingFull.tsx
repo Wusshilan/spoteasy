@@ -279,7 +279,7 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
             title="收起播放视图"
             aria-label="收起播放视图"
           >
-            <Icon name="exitFullscreen" size={22} />
+            <Icon name="exitFullscreen" size={20} />
           </button>
         </div>
       </header>
