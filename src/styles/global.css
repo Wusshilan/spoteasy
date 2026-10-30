@@ -9660,3 +9660,113 @@ html[data-reduce-motion='1'] *::after {
 .library-page-expand svg {
   stroke-width: 2.2;
 }
+
+/* 0.1.42 沉浸：内容固定，只让背景卡片展开/收回 */
+.np-immersive-card {
+  position: fixed;
+  inset: 16px;
+  z-index: 300;
+  border-radius: 16px;
+  background: var(--np-color, #121212);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.np-immersive-card.is-on {
+  opacity: 1;
+  animation: npImmersiveCardIn 0.44s cubic-bezier(0.22, 0.9, 0.28, 1);
+}
+
+.np-immersive-card.is-on.is-waking {
+  animation: npImmersiveCardOut 0.28s cubic-bezier(0.4, 0, 0.8, 1) forwards;
+}
+
+@keyframes npImmersiveCardIn {
+  from {
+    inset: 72px 16px;
+    border-radius: 24px;
+  }
+  to {
+    inset: 16px;
+    border-radius: 16px;
+  }
+}
+
+@keyframes npImmersiveCardOut {
+  from {
+    inset: 16px;
+    border-radius: 16px;
+  }
+  to {
+    inset: 72px 16px;
+    border-radius: 24px;
+  }
+}
+
+.np-full.is-immersive {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-height: none !important;
+  border-radius: 0 !important;
+  overflow: visible !important;
+  background: transparent !important;
+  clip-path: none !important;
+  animation: none !important;
+  transform: none !important;
+  z-index: 301 !important;
+  cursor: default !important;
+}
+
+.np-full.is-immersive .np-full-cover-wrap {
+  width: min(560px, 56vh, 72%) !important;
+}
+
+.np-full.is-immersive .np-full-stage.has-lyrics .np-full-cover-wrap {
+  width: min(500px, 50vh, 44%) !important;
+}
+
+.np-full.is-immersive .np-full-stage .np-full-lyrics {
+  width: 0 !important;
+  margin-left: 0 !important;
+  margin-right: 0 !important;
+  opacity: 0 !important;
+}
+
+.np-full.is-immersive .np-full-stage.has-lyrics .np-full-lyrics {
+  width: min(48%, 560px) !important;
+  margin-left: 0 !important;
+  margin-right: 44px !important;
+  opacity: 1 !important;
+}
+
+.np-immersive-blackout,
+.np-immersive-blackout.is-waking {
+  transition: none !important;
+}
+
+.np-immersive-blackout.is-waking {
+  opacity: 1;
+}
+
+.np-full.is-immersive {
+  background-color: transparent !important;
+  background-image: none !important;
+  transition: none !important;
+}
+
+
+/* 0.1.42 全界面 60% corner smoothing（保持真正圆形控件不变） */
+:where(*, *::before, *::after) {
+  corner-shape: squircle;
+}
+
+:where(
+  .avatar, .avatar img, .icon-btn, .play-btn, .home-btn, .nav-arrow,
+  .row-arrow, .topbar-logo, .profile-btn, .update-pill, .chip, .search-pill,
+  .segmented, .settings-btn, .primary-btn, .library-card-play, .pb-check-circle,
+  .bar-thumb, .tip, .ctrl, .pb-icon, .sort-view-btn
+) {
+  corner-shape: round;
+}

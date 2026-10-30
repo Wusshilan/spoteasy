@@ -95,13 +95,13 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
               <Icon name="shuffle" size={22} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="上一首">
-              <Icon name="prev" size={18} />
+              <Icon name="prev" size={21} />
             </button>
             <button type="button" className="play-btn" disabled aria-label="播放">
               <Icon name="play" size={14} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="下一首">
-              <Icon name="next" size={18} />
+              <Icon name="next" size={21} />
             </button>
             <button type="button" className="icon-btn ctrl" disabled aria-label="循环播放">
               <Icon name="repeat" size={22} />
@@ -201,7 +201,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
   return (
     <footer className="playerbar">
       <div className="pb-left">
-        <button type="button" className="pb-cover-btn" onClick={openNowPlaying} title="打开正在播放视图" aria-label="打开正在播放视图">
+        <button type="button" className="pb-cover-btn" onClick={() => { setLyricsFull(false); setPanelOpen(false); setPanelView('nowPlaying'); setNpFull(true); }} title="打开全屏播放" aria-label="打开全屏播放">
           <Cover key={track.id} hue={track.hue} variant={track.variant} label={track.title} src={track.coverUrl} className="pb-cover" />
         </button>
         <div className="pb-track">
@@ -242,7 +242,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             {player.shuffle && <span className="ctrl-dot" />}
           </button>
           <button type="button" className="icon-btn ctrl tip" onClick={player.prev} aria-label="上一首" data-tip="上一首">
-            <Icon name="prev" size={18} />
+            <Icon name="prev" size={21} />
           </button>
           <button
             type="button"
@@ -254,7 +254,7 @@ export function PlayerBar({ navigate }: { navigate: (route: Route) => void }) {
             <Icon name={player.playing ? 'pause' : 'play'} size={14} />
           </button>
           <button type="button" className="icon-btn ctrl tip" onClick={player.next} aria-label="下一首" data-tip="下一首">
-            <Icon name="next" size={18} />
+            <Icon name="next" size={21} />
           </button>
           <button
             type="button"

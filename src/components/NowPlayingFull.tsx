@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Cover } from './CoverArt';
 import { Icon } from './Icons';
 import { lyrics as demoLyrics, type LyricLine } from '../data/mock';
@@ -19,12 +19,16 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
   const wakeTimer = useRef<number | null>(null);
   const immersiveRef = useRef(false);
   const wakingRef = useRef(false);
+  const enterImmersive = () => {
+    if (immersiveRef.current || wakingRef.current) return;
+    if (idleTimer.current) window.clearTimeout(idleTimer.current);
+    immersiveRef.current = true;
+    setImmersive(true);
+  };
   const [coverHue, setCoverHue] = useState(track?.hue ?? 210);
   const [coverColor, setCoverColor] = useState<string | null>(null);
   const [cloudLyrics, setCloudLyrics] = useState<LyricLine[] | null>(null);
   const lyricsScrollRef = useRef<HTMLDivElement>(null);
-  const coverRef = useRef<HTMLDivElement>(null);
-  const flipFromRef = useRef<DOMRect | null>(null);
   const lyricRefs = useRef<Array<HTMLButtonElement | null>>([]);
 
   useEffect(() => {
@@ -56,16 +60,12 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
       if (idleTimer.current) window.clearTimeout(idleTimer.current);
       if (immersiveRef.current) return;
       idleTimer.current = window.setTimeout(() => {
-        flipFromRef.current = coverRef.current?.getBoundingClientRect() ?? null;
-        setLyricsOpen(false);
-        immersiveRef.current = true;
-        setImmersive(true);
+        enterImmersive();
       }, 5000);
     };
     const exitImmersive = () => {
       if (!immersiveRef.current || wakingRef.current) return;
       wakingRef.current = true;
-      flipFromRef.current = coverRef.current?.getBoundingClientRect() ?? null;
       setWaking(true);
       if (wakeTimer.current) window.clearTimeout(wakeTimer.current);
       wakeTimer.current = window.setTimeout(() => {
@@ -74,7 +74,7 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
         setWaking(false);
         wakingRef.current = false;
         arm();
-      }, 420);
+      }, 300);
     };
     const onMove = () => {
       if (!immersiveRef.current) arm();
@@ -127,38 +127,7 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
     };
   }, [lyricsOpen, netease, track?.id, track?.source, track?.cloudId]);
 
-  useLayoutEffect(() => {
-    const from = flipFromRef.current;
-    if (!from) return;
-    flipFromRef.current = null;
-    if (
-      document.documentElement.dataset.reduceMotion === '1' ||
-      window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
-    ) {
-      return;
-    }
-    const element = coverRef.current;
-    if (!element) return;
-    const to = element.getBoundingClientRect();
-    if (!to.width || !to.height) return;
-    const scaleX = from.width / to.width;
-    const scaleY = from.height / to.height;
-    const dx = from.left + from.width / 2 - (to.left + to.width / 2);
-    const dy = from.top + from.height / 2 - (to.top + to.height / 2);
-    element.style.transition = 'none';
-    element.style.transformOrigin = 'center center';
-    element.style.transform = `translate(${dx}px, ${dy}px) scale(${scaleX}, ${scaleY})`;
-    void element.offsetWidth;
-    requestAnimationFrame(() => {
-      element.style.transition = 'transform 0.52s cubic-bezier(0.22, 0.9, 0.28, 1)';
-      element.style.transform = 'translate(0, 0) scale(1, 1)';
-    });
-    const timer = window.setTimeout(() => {
-      element.style.transition = '';
-      element.style.transform = '';
-    }, 580);
-    return () => window.clearTimeout(timer);
-  }, [immersive]);
+
 
   const lyricLines = useMemo<LyricLine[]>(() => {
     if (!track || !lyricsOpen) return [];
@@ -226,17 +195,30 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
     toast('链接已复制');
   };
 
+  const npColor = coverColor ?? `hsl(${coverHue} 45% 28%)`;
+
   return (
     <>
       <div
         className={`np-immersive-blackout ${immersive ? 'is-on' : ''} ${waking ? 'is-waking' : ''}`}
         aria-hidden="true"
       />
+      <div
+        className={`np-immersive-card ${immersive ? 'is-on' : ''} ${waking ? 'is-waking' : ''}`}
+        style={{ ['--np-color' as string]: npColor }}
+        aria-hidden="true"
+      />
       <section
         className={`np-full ${immersive ? 'is-immersive' : ''} ${waking ? 'is-waking' : ''}`}
+        onClick={(event) => {
+          if (immersiveRef.current || wakingRef.current) return;
+          const target = event.target as Element;
+          if (target.closest('button, a, input, [role="slider"]')) return;
+          enterImmersive();
+        }}
       style={{
         ['--np-hue' as string]: coverHue,
-        ['--np-color' as string]: coverColor ?? `hsl(${coverHue} 45% 28%)`,
+        ['--np-color' as string]: npColor,
       }}
     >
       <header className="np-full-head">
@@ -284,7 +266,7 @@ export function NowPlayingFull({ navigate }: { navigate: (route: Route) => void 
         </div>
       </header>
       <div className={`np-full-stage ${lyricsOpen ? 'has-lyrics' : ''}`}>
-        <div className="np-full-cover-wrap" ref={coverRef}>
+        <div className="np-full-cover-wrap">
           <button
             type="button"
             className="np-full-cover-btn"

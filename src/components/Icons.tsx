@@ -125,14 +125,14 @@ const stroke: Record<string, ReactNode> = {
   chevronRight: <path d="m9 6 6 6-6 6" />,
   prev: (
     <>
-      <path d="M19 5.2v13.6L8.6 12z" fill="currentColor" stroke="none" />
-      <rect x="4.6" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
+      <path d="M18.6 5.5v13c0 1.1-1.3 1.7-2.1 1.1l-8.7-6.5a1.3 1.3 0 0 1 0-2.2l8.7-6.5c.8-.6 2.1 0 2.1 1.1z" fill="currentColor" stroke="none" />
+      <rect x="4.5" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   next: (
     <>
-      <path d="M5 5.2v13.6L15.4 12z" fill="currentColor" stroke="none" />
-      <rect x="17.2" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
+      <path d="M5.4 5.5v13c0 1.1 1.3 1.7 2.1 1.1l8.7-6.5a1.3 1.3 0 0 0 0-2.2l-8.7-6.5c-.8-.6-2.1 0-2.1 1.1z" fill="currentColor" stroke="none" />
+      <rect x="17.3" y="5" width="2.2" height="14" rx="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   shuffle: (
