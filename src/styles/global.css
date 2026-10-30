@@ -9829,7 +9829,11 @@ html[data-reduce-motion='1'] *::after {
 }
 
 .home-greeting {
-  margin: 24px 0 40px;
+  margin: 0 0 20px;
+}
+
+.main-shell.is-home .home {
+  padding-top: 24px;
 }
 
 

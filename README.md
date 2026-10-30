@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.43"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
+  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.44"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
   <a href="https://github.com/Wusshilan/spoteasy"><img alt="Source" src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
 </p>
 
-**当前版本：0.1.43** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
+**当前版本：0.1.44** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
 
-[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.43) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
+[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.44) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
 
 ## 实机截图
 
@@ -72,8 +72,8 @@
 
 推荐下载 **Setup** 安装版：
 
-- [Spoteasy-Setup-0.1.43.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.43/Spoteasy-Setup-0.1.43.exe)
-- [Spoteasy-0.1.43-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.43/Spoteasy-0.1.43-portable.exe)
+- [Spoteasy-Setup-0.1.44.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.44/Spoteasy-Setup-0.1.44.exe)
+- [Spoteasy-0.1.44-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.44/Spoteasy-0.1.44-portable.exe)
 
 安装版支持应用内更新；portable 版本不能可靠地自我覆盖更新。
 
@@ -83,8 +83,8 @@
 - 仅当最新版本大于当前版本时，在主页图标前显示绿色「更新」胶囊
 - 用户点击胶囊后才会下载 `Spoteasy-Setup-*.exe` 并启动安装
 - 不点击不会下载、不会安装
-- 当前版本与最新 Release 同为 0.1.43 时不会显示胶囊
-- 升级实测需要先发布 **0.1.44**；安装包尚未签名，Windows 可能提示未知发布者
+- 当前版本与最新 Release 同为 0.1.44 时不会显示胶囊
+- 升级实测需要先发布 **0.1.45**；安装包尚未签名，Windows 可能提示未知发布者
 
 ## 开发
 
@@ -116,6 +116,12 @@ Windows 打包产物在 `release/`。
 - 云同步没有后端，当前不做账号云同步
 
 ## 更新日志
+
+## 0.1.44 首页顶部间距
+
+- 修正首页卡片顶部与问候语第一行文字之间的间距，由 12px 改为 24px
+- 恢复问候语与下方歌单卡片之间的间距为原来的 20px
+- 版本号升至 0.1.44
 
 ## 0.1.43 多语言、首页与沉浸模式修复
 

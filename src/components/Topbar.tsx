@@ -113,7 +113,7 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
             <div className="app-menu">
               <div className="app-menu-brand">
                 <span>Spoteasy</span>
-                <small>0.1.43</small>
+                <small>0.1.44</small>
               </div>
               <button
                 type="button"
