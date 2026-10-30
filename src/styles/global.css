@@ -9770,3 +9770,69 @@ html[data-reduce-motion='1'] *::after {
 ) {
   corner-shape: round;
 }
+
+
+/* 0.1.43 全屏播放卡片：去掉遮罩、标题归位、打开动画 */
+.np-full::after,
+.np-immersive-card::after {
+  display: none !important;
+  content: none !important;
+}
+
+.np-full-cover-wrap::after {
+  display: none !important;
+}
+
+.np-full {
+  animation: npFullOpen 0.42s cubic-bezier(0.22, 0.9, 0.28, 1);
+  transform-origin: center bottom;
+}
+
+@keyframes npFullOpen {
+  from {
+    transform: scale(0.955) translateY(18px);
+    border-radius: 20px;
+    clip-path: inset(1.5% round 20px);
+  }
+  to {
+    transform: scale(1) translateY(0);
+    border-radius: 8px;
+    clip-path: inset(0 round 8px);
+  }
+}
+
+.np-full.is-immersive .np-full-immersive-meta {
+  position: fixed;
+  left: 32px;
+  bottom: 28px;
+  z-index: 302;
+}
+
+.np-full.is-immersive.is-waking {
+  animation: none !important;
+}
+
+.np-immersive-blackout,
+.np-immersive-blackout.is-on,
+.np-immersive-blackout.is-waking {
+  transition: none !important;
+  animation: none !important;
+}
+
+.np-immersive-blackout {
+  opacity: 0 !important;
+}
+
+.np-immersive-blackout.is-on,
+.np-immersive-blackout.is-waking {
+  opacity: 1 !important;
+}
+
+.home-greeting {
+  margin: 24px 0 40px;
+}
+
+
+.np-immersive-blackout.is-waking {
+  opacity: 0 !important;
+}

@@ -8,13 +8,13 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.42"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
+  <a href="https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.43"><img alt="Download" src="https://img.shields.io/badge/Download-Windows-1ed760?style=for-the-badge&logo=windows&logoColor=white" /></a>
   <a href="https://github.com/Wusshilan/spoteasy"><img alt="Source" src="https://img.shields.io/badge/Source-GitHub-181717?style=for-the-badge&logo=github&logoColor=white" /></a>
 </p>
 
-**当前版本：0.1.42** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
+**当前版本：0.1.43** · Windows 10/11 · Electron 45 + React 19 + TypeScript + Vite
 
-[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.42) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
+[下载安装包](https://github.com/Wusshilan/spoteasy/releases/tag/v0.1.43) · [源码仓库](https://github.com/Wusshilan/spoteasy) · [问题反馈](https://github.com/Wusshilan/spoteasy/issues)
 
 ## 实机截图
 
@@ -72,8 +72,8 @@
 
 推荐下载 **Setup** 安装版：
 
-- [Spoteasy-Setup-0.1.42.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.42/Spoteasy-Setup-0.1.42.exe)
-- [Spoteasy-0.1.42-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.42/Spoteasy-0.1.42-portable.exe)
+- [Spoteasy-Setup-0.1.43.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.43/Spoteasy-Setup-0.1.43.exe)
+- [Spoteasy-0.1.43-portable.exe](https://github.com/Wusshilan/spoteasy/releases/download/v0.1.43/Spoteasy-0.1.43-portable.exe)
 
 安装版支持应用内更新；portable 版本不能可靠地自我覆盖更新。
 
@@ -83,8 +83,8 @@
 - 仅当最新版本大于当前版本时，在主页图标前显示绿色「更新」胶囊
 - 用户点击胶囊后才会下载 `Spoteasy-Setup-*.exe` 并启动安装
 - 不点击不会下载、不会安装
-- 当前版本与最新 Release 同为 0.1.42 时不会显示胶囊
-- 升级实测需要先发布 **0.1.43**；安装包尚未签名，Windows 可能提示未知发布者
+- 当前版本与最新 Release 同为 0.1.43 时不会显示胶囊
+- 升级实测需要先发布 **0.1.44**；安装包尚未签名，Windows 可能提示未知发布者
 
 ## 开发
 
@@ -116,6 +116,17 @@ Windows 打包产物在 `release/`。
 - 云同步没有后端，当前不做账号云同步
 
 ## 更新日志
+
+## 0.1.43 多语言、首页与沉浸模式修复
+
+- 新增界面语言：简体中文、繁體中文（香港）、繁體中文（台灣）、English
+- 语言设置放入“偏好设置”，选择后立即生效并持久化
+- 首页问候语加入当前用户名，并加倍问候语与卡片之间的间距
+- 播放条封面点击进入全屏播放时增加展开动画
+- 移除全屏播放卡片上的渐变遮罩
+- 沉浸模式左下角标题固定回卡片左下角
+- 退出沉浸模式取消黑屏渐变，只保留卡片收回
+- 保留 60% 圆角平滑、10 段均衡器和首页分类歌单
 
 ## 0.1.42 均衡器、首页推荐栏目与设置优化
 

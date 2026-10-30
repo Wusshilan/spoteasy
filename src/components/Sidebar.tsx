@@ -6,6 +6,7 @@ import { CreateMenu, type CreateAnchor, type CreateKind } from './CreateMenu';
 import { useNetease } from '../state/netease';
 import { usePlayer } from '../state/player';
 import { useUi } from '../state/ui';
+import { useI18n } from '../i18n';
 import { registerTracks } from '../data/mock';
 import type { Playlist } from '../data/mock';
 import type { Route } from '../routing';
@@ -105,6 +106,7 @@ export function Sidebar({
   const netease = useNetease();
   const player = usePlayer();
   const { toast } = useUi();
+  const { t } = useI18n();
   const [filter, setFilter] = useState<Filter>('all');
   const [query, setQuery] = useState('');
   const [sort, setSort] = useState<SortMode>(() => {
@@ -936,7 +938,7 @@ export function Sidebar({
           >
             <Icon name="panelOpen" size={20} />
           </button>
-          <h2>音乐库</h2>
+          <h2>{t('nav.library')}</h2>
           <div className="library-head-actions">
             <button
               ref={headerAddRef}
@@ -965,10 +967,10 @@ export function Sidebar({
         <div className="library-filters">
           {(
             [
-              ['playlists', '歌单'],
-              ['podcasts', '播客'],
-              ['albums', '专辑'],
-              ['artists', '艺人'],
+              ['playlists', t('library.playlists')],
+              ['podcasts', t('library.podcasts')],
+              ['albums', t('library.albums')],
+              ['artists', t('library.artists')],
             ] as Array<[Filter, string]>
           ).map(([key, label]) => (
             <button
@@ -990,8 +992,8 @@ export function Sidebar({
                 autoFocus
                 value={query}
                 onChange={(event) => setQuery(event.target.value)}
-                placeholder="在音乐库中搜索"
-                aria-label="在音乐库中搜索"
+                placeholder={t('library.searchPlaceholder')}
+                aria-label={t('library.searchPlaceholder')}
                 onKeyDown={(event) => {
                   if (event.key === 'Escape') {
                     setQuery('');
@@ -1016,8 +1018,8 @@ export function Sidebar({
               <button
                 type="button"
                 className="library-search-btn"
-                aria-label="搜索音乐库"
-                title="搜索音乐库"
+                aria-label={t('library.search')}
+                title={t('library.search')}
                 onClick={() => setSearchOpen(true)}
               >
                 <Icon name="search" size={20} />

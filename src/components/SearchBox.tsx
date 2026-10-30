@@ -7,6 +7,7 @@ import { useLibrary } from '../state/library';
 import { useNetease } from '../state/netease';
 import { usePlayer } from '../state/player';
 import { useUi } from '../state/ui';
+import { useI18n } from '../i18n';
 import { getTrack, registerTracks, type Playlist, type Track } from '../data/mock';
 import type { Route } from '../routing';
 
@@ -24,6 +25,7 @@ export function SearchBox({ route, navigate }: { route: Route; navigate: (route:
   const library = useLibrary();
   const player = usePlayer();
   const ui = useUi();
+  const { t } = useI18n();
   const recent = useRecentSearches();
   const [value, setValue] = useState(route.name === 'search' ? route.q ?? '' : '');
   const [open, setOpen] = useState(false);
@@ -287,8 +289,8 @@ export function SearchBox({ route, navigate }: { route: Route; navigate: (route:
         ref={inputRef}
         className="search-input"
         value={value}
-        placeholder="想播放什么?"
-        aria-label="搜索歌曲、歌手、歌单、专辑"
+        placeholder={t('search.placeholder')}
+        aria-label={t('search.aria')}
         onFocus={() => setOpen(true)}
         onChange={(event) => {
           setValue(event.target.value);

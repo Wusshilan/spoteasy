@@ -5,6 +5,7 @@ import { Avatar } from './CoverArt';
 import mark from '../assets/spoteasy-mark.svg';
 import { useNetease } from '../state/netease';
 import { useUi } from '../state/ui';
+import { useI18n } from '../i18n';
 import type { Route } from '../routing';
 
 interface TopbarProps {
@@ -19,6 +20,7 @@ interface TopbarProps {
 
 export function Topbar({ route, canBack, canForward, onBack, onForward, onCollapseLibrary, navigate }: TopbarProps) {
   const { toast } = useUi();
+  const { t } = useI18n();
   const netease = useNetease();
   const [menuOpen, setMenuOpen] = useState(false);
   const [appMenuOpen, setAppMenuOpen] = useState(false);
@@ -27,7 +29,7 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
   const [updating, setUpdating] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
   const appMenuRef = useRef<HTMLDivElement>(null);
-  const displayName = netease.loggedIn ? netease.nickname : netease.publicProfile?.nickname || '音乐爱好者';
+  const displayName = netease.loggedIn ? netease.nickname : netease.publicProfile?.nickname || t('common.listener');
   const displayAvatar = netease.loggedIn ? netease.avatar : netease.publicProfile?.avatarUrl;
   const win = window.spoteasy?.win;
   const homeActive = route.name === 'home';
@@ -111,7 +113,7 @@ export function Topbar({ route, canBack, canForward, onBack, onForward, onCollap
             <div className="app-menu">
               <div className="app-menu-brand">
                 <span>Spoteasy</span>
-                <small>0.1.42</small>
+                <small>0.1.43</small>
               </div>
               <button
                 type="button"

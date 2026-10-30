@@ -4,6 +4,7 @@ import App from './App';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { MiniPlayer } from './components/MiniPlayer';
 import { parseHashExtras } from './routing';
+import { I18nProvider } from './i18n';
 import { LibraryProvider } from './state/library';
 import { NeteaseProvider } from './state/netease';
 import { PlayerProvider } from './state/player';
@@ -19,7 +20,8 @@ if (parseHashExtras().mini === '1') {
   createRoot(root).render(<MiniPlayer />);
 } else {
   createRoot(root).render(
-    <UiProvider>
+    <I18nProvider>
+      <UiProvider>
       <LibraryProvider>
         <NeteaseProvider>
           <PlayerProvider>
@@ -29,6 +31,7 @@ if (parseHashExtras().mini === '1') {
           </PlayerProvider>
         </NeteaseProvider>
       </LibraryProvider>
-    </UiProvider>,
+      </UiProvider>
+    </I18nProvider>,
   );
 }

@@ -7,6 +7,7 @@ import { usePlayer } from '../state/player';
 import { useUi } from '../state/ui';
 import type { Repeat } from '../state/player';
 import { EQ_BANDS, EQ_PRESETS, loadEqState, saveEqState, type EqState } from '../audio/equalizer';
+import { LANG_OPTIONS, useI18n } from '../i18n';
 
 type Tab = 'preferences' | 'local' | 'playback' | 'appearance' | 'about';
 
@@ -53,6 +54,7 @@ function formatBytes(bytes: number): string {
 export function SettingsView() {
   const library = useLibrary();
   const netease = useNetease();
+  const { t, lang, setLang } = useI18n();
   const player = usePlayer();
   const ui = useUi();
   const [tab, setTab] = useState<Tab>('preferences');
@@ -170,7 +172,7 @@ export function SettingsView() {
 
   return (
     <div className="settings-page">
-      <h1 className="settings-title">设置</h1>
+      <h1 className="settings-title">{t('settings.title')}</h1>
 
       <div className="settings-tabs" role="tablist">
         {tabs.map(([key, label]) => (
@@ -182,13 +184,33 @@ export function SettingsView() {
             className={`settings-tab ${tab === key ? 'is-active' : ''}`}
             onClick={() => setTab(key)}
           >
-            {label}
+            {t(`settings.tab.${key}`)}
           </button>
         ))}
       </div>
 
       {tab === 'preferences' && (
         <div className="settings-body spotify-settings">
+          <section className="settings-section">
+            <h2>{t('settings.language')}</h2>
+            <div className="settings-row">
+              <div className="settings-label">{t('settings.language')}</div>
+              <div className="settings-control">
+                <select
+                  className="settings-select"
+                  value={lang}
+                  onChange={(event) => setLang(event.target.value as typeof lang)}
+                  aria-label={t('settings.language')}
+                >
+                  {LANG_OPTIONS.map((option) => (
+                    <option key={option.value} value={option.value}>{option.label}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+            <p className="settings-help">{t('settings.languageHelp')}</p>
+          </section>
+
           <section className="settings-section">
             <h2>账号</h2>
             <div className="settings-row">

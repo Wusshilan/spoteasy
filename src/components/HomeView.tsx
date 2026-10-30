@@ -6,18 +6,19 @@ import { MediaCard } from './MediaCard';
 import { formatCount, registerTracks, type Playlist, type Track } from '../data/mock';
 import { useNetease } from '../state/netease';
 import { usePlayer } from '../state/player';
+import { useI18n } from '../i18n';
 import type { Route } from '../routing';
 
 interface HomeViewProps {
   navigate(route: Route): void;
 }
 
-function greeting(): string {
+function greetingKey(): string {
   const h = new Date().getHours();
-  if (h < 6) return '凌晨好';
-  if (h < 12) return '早上好';
-  if (h < 18) return '下午好';
-  return '晚上好';
+  if (h < 6) return 'greeting.late';
+  if (h < 12) return 'greeting.morning';
+  if (h < 18) return 'greeting.afternoon';
+  return 'greeting.evening';
 }
 
 function CardRow({
@@ -33,6 +34,7 @@ function CardRow({
   onPlay(p: Playlist): void;
   onShowAll(): void;
 }) {
+  const { t } = useI18n();
   const ref = useRef<HTMLDivElement>(null);
 
   const scrollBy = (dir: number) => {
@@ -46,7 +48,7 @@ function CardRow({
       <div className="section-head">
         <h2>{title}</h2>
         <button type="button" className="show-all" onClick={onShowAll}>
-          显示全部
+          {t('home.showAll')}
         </button>
       </div>
       <div className="card-row-wrap">
@@ -89,6 +91,7 @@ function CardRow({
 export function HomeView({ navigate }: HomeViewProps) {
   const netease = useNetease();
   const player = usePlayer();
+  const { t, lang } = useI18n();
   const [recommended, setRecommended] = useState<Playlist[]>([]);
   const [resource, setResource] = useState<Playlist[]>([]);
   const [top, setTop] = useState<Playlist[]>([]);
@@ -347,7 +350,7 @@ export function HomeView({ navigate }: HomeViewProps) {
 
   return (
     <div className="home" style={{ '--home-hue': String(heroHue) } as CSSProperties}>
-      <h1 className="home-greeting">{greeting()}</h1>
+      <h1 className="home-greeting">{t(greetingKey())}{lang === 'en' ? ', ' : '，'}{netease.loggedIn ? netease.nickname : netease.publicProfile?.nickname || t('common.listener')}</h1>
 
       {quick.length > 0 && (
         <div className="quick-grid">
@@ -391,7 +394,7 @@ export function HomeView({ navigate }: HomeViewProps) {
       {empty && <div className="cloud-loading">暂时没有可展示的推荐。</div>}
 
       <CardRow
-        title="为你推荐"
+        title={t('home.recommended')}
         playlists={recommended}
         onOpen={open}
         onPlay={open}
@@ -418,21 +421,21 @@ export function HomeView({ navigate }: HomeViewProps) {
         />
       )}
       <CardRow
-        title="排行榜"
+        title={t('home.charts')}
         playlists={charts}
         onOpen={open}
         onPlay={open}
         onShowAll={() => navigate({ name: 'section', id: 'charts' })}
       />
       <CardRow
-        title="专属推荐"
+        title={t('home.exclusive')}
         playlists={resource}
         onOpen={open}
         onPlay={open}
         onShowAll={() => navigate({ name: 'section', id: 'resource' })}
       />
       <CardRow
-        title="热门歌单"
+        title={t('home.hot')}
         playlists={top}
         onOpen={open}
         onPlay={open}
@@ -442,7 +445,14 @@ export function HomeView({ navigate }: HomeViewProps) {
       {genres.map((section) => (
         <CardRow
           key={section.title}
-          title={section.title}
+          title={t(
+            section.title === '华语流行' ? 'genre.mandopop' :
+            section.title === '电子' ? 'genre.electronic' :
+            section.title === '摇滚' ? 'genre.rock' :
+            section.title === '民谣' ? 'genre.folk' :
+            section.title === '说唱' ? 'genre.hiphop' :
+            section.title === '轻音乐' ? 'genre.easy' : section.title
+          )}
           playlists={section.playlists}
           onOpen={open}
           onPlay={open}
@@ -450,7 +460,7 @@ export function HomeView({ navigate }: HomeViewProps) {
         />
       ))}
       <CardRow
-        title="新歌速递"
+        title={t('home.new')}
         playlists={newSongCards}
         onOpen={open}
         onPlay={open}
